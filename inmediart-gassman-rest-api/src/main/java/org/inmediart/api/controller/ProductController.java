@@ -41,7 +41,7 @@ public class ProductController extends MessageSender<Order> {
     }
 
     @GetMapping("/{id}/orders")
-    public ResponseEntity<List<Order>> findProductOrders(@PathVariable Long id){
+    public ResponseEntity<List<Order>> findProductOrders(@PathVariable("id") Long id){
         Optional<Product> product = productRepository.findById(id);
         if(product.isPresent()) {
             return new ResponseEntity<>(orderRepository.findByProduct(product.get()), HttpStatus.OK);
@@ -51,7 +51,7 @@ public class ProductController extends MessageSender<Order> {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Product>> findProductById(@PathVariable Long id){
+    public ResponseEntity<Optional<Product>> findProductById(@PathVariable("id") Long id){
         Optional<Product> product = productRepository.findById(id);
         if(product.isPresent()){
             return new ResponseEntity<>(product, HttpStatus.OK);
@@ -68,7 +68,7 @@ public class ProductController extends MessageSender<Order> {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> putProduct(@PathVariable Long id, @RequestBody Product productToUpdate){
+    public ResponseEntity<Product> putProduct(@PathVariable("id") Long id, @RequestBody Product productToUpdate){
         Optional<Product> product = productRepository.findById(id);
         if(product.isPresent()){
             productToUpdate.setProductId(id);
@@ -83,7 +83,7 @@ public class ProductController extends MessageSender<Order> {
 
     @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteProduct(@PathVariable Long id){
+    public ResponseEntity<Boolean> deleteProduct(@PathVariable("id") Long id){
         if(productRepository.existsById(id)){
             Optional<Product> productToDelete = productRepository.findById(id);
             List<Order> orders = orderRepository.findByProduct(productToDelete.get());

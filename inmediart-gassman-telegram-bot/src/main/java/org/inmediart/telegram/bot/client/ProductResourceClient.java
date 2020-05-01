@@ -17,11 +17,11 @@ public interface ProductResourceClient {
     List<ProductDTO> findAll();
 
     @GetMapping("/{id}/orders")
-    List<OrderDTO> findProductOrders(@PathVariable Long id);
+    List<OrderDTO> findProductOrders(@PathVariable("id") Long id);
 
     @PostMapping()
     ProductDTO postProduct(@RequestBody ProductDTO product);
 
     @GetMapping("/{id}")
-    ProductDTO findProductById(@PathVariable Long id);
+    ProductDTO findProductById(@PathVariable("id") Long id);
 }

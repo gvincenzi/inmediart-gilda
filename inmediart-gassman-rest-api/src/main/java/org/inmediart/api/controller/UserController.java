@@ -46,7 +46,7 @@ public class UserController extends MessageSender<User> {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<User>> findUserById(@PathVariable Long id){
+    public ResponseEntity<Optional<User>> findUserById(@PathVariable("id") Long id){
         Optional<User> user = userRepository.findById(id);
         if(user.isPresent()){
             return new ResponseEntity<>(user, HttpStatus.OK);
@@ -57,7 +57,7 @@ public class UserController extends MessageSender<User> {
     }
 
     @GetMapping("/mail/{mail}")
-    public ResponseEntity<User> findUserByMail(@PathVariable String mail){
+    public ResponseEntity<User> findUserByMail(@PathVariable("mail") String mail){
         return new ResponseEntity<>(userRepository.findByMail(mail), HttpStatus.OK);
     }
 
@@ -97,7 +97,7 @@ public class UserController extends MessageSender<User> {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> putUser(@PathVariable Long id, @RequestBody User user){
+    public ResponseEntity<User> putUser(@PathVariable("id") Long id, @RequestBody User user){
         if(userRepository.existsById(id)){
             user.setId(id);
             return new ResponseEntity<>(userRepository.save(user), HttpStatus.ACCEPTED);
@@ -107,7 +107,7 @@ public class UserController extends MessageSender<User> {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteUser(@PathVariable Long id){
+    public ResponseEntity<Boolean> deleteUser(@PathVariable("id") Long id){
         Optional<User> user = userRepository.findById(id);
         if(user.isPresent()){
             return deleteUser(user);
@@ -117,7 +117,7 @@ public class UserController extends MessageSender<User> {
     }
 
     @GetMapping("/telegram/{id}")
-    public ResponseEntity<User> findUserByTelegram(@PathVariable Integer id){
+    public ResponseEntity<User> findUserByTelegram(@PathVariable("id") Integer id){
         Optional<User> user = userRepository.findByTelegramUserIdAndActiveTrue(id);
         if(user.isPresent()){
             return new ResponseEntity<>(user.get(), HttpStatus.OK);
@@ -127,7 +127,7 @@ public class UserController extends MessageSender<User> {
     }
 
     @DeleteMapping("/telegram/{id}")
-    public ResponseEntity<Boolean> deleteUserByTelegram(@PathVariable Integer id){
+    public ResponseEntity<Boolean> deleteUserByTelegram(@PathVariable("id") Integer id){
         Optional<User> user = userRepository.findByTelegramUserId(id);
         if(user.isPresent()){
             return deleteUser(user);

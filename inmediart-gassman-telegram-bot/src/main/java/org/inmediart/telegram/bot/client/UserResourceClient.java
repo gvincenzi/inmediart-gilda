@@ -27,5 +27,5 @@ public interface UserResourceClient {
     List<UserDTO> getUsers();
 
     @GetMapping("/mail/{mail}")
-    UserDTO findUserByMail(@PathVariable String mail);
+    UserDTO findUserByMail(@PathVariable("mail") String mail);
 }

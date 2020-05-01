@@ -38,7 +38,7 @@ public class OrderController extends MessageSender<Order> {
     private MessageChannel orderUpdateChannel;
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<List<Order>> findAllOrdersByUser(@PathVariable Long id){
+    public ResponseEntity<List<Order>> findAllOrdersByUser(@PathVariable("id") Long id){
         Optional<User> user = userRepository.findById(id);
         if(user.isPresent()){
             return new ResponseEntity<>(orderRepository.findByUser(user.get()), HttpStatus.OK);
@@ -53,17 +53,17 @@ public class OrderController extends MessageSender<Order> {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Order>> findOrderById(@PathVariable Long id){
+    public ResponseEntity<Optional<Order>> findOrderById(@PathVariable("id") Long id){
         return new ResponseEntity<>(orderRepository.findById(id), HttpStatus.OK);
     }
 
     @GetMapping("/action/{actionType}/all")
-    public ResponseEntity<List<Order>> findAllOrdersByActionType(@PathVariable ActionType actionType){
+    public ResponseEntity<List<Order>> findAllOrdersByActionType(@PathVariable("actionType") ActionType actionType){
         return new ResponseEntity<>(orderRepository.findByActionType(actionType), HttpStatus.OK);
     }
 
     @GetMapping("/action/{actionType}")
-    public ResponseEntity<List<Order>> findOrdersByActionType(@PathVariable ActionType actionType){
+    public ResponseEntity<List<Order>> findOrdersByActionType(@PathVariable("actionType") ActionType actionType){
         return new ResponseEntity<>(orderRepository.findByActionType(actionType), HttpStatus.OK);
     }
 
@@ -96,7 +96,7 @@ public class OrderController extends MessageSender<Order> {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Order> putOrder(@PathVariable Long id, @RequestBody Order order) {
+    public ResponseEntity<Order> putOrder(@PathVariable("id") Long id, @RequestBody Order order) {
         Optional<Order> orderPersisted = orderRepository.findById(id);
         if(orderPersisted.isPresent()){
             order.setOrderId(id);
@@ -113,7 +113,7 @@ public class OrderController extends MessageSender<Order> {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteOrder(@PathVariable Long id){
+    public ResponseEntity<Boolean> deleteOrder(@PathVariable("id") Long id){
         Optional<Order> orderPersisted = orderRepository.findById(id);
         if(orderPersisted.isPresent()){
             internalPaymentService.processOrderCancellation(orderPersisted.get());

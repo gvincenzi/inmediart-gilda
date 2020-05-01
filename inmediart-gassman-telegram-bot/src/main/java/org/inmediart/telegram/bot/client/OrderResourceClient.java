@@ -10,10 +10,10 @@ import java.util.List;
 @FeignClient(name = "orders", url = "${feign.url}/orders", configuration = FeignClientConfiguration.class)
 public interface OrderResourceClient {
     @GetMapping("/users/{id}")
-    List<OrderDTO> findAllOrdersByUser(@PathVariable Long id);
+    List<OrderDTO> findAllOrdersByUser(@PathVariable("id") Long id);
 
     @GetMapping("/{id}")
-    OrderDTO findOrderById(@PathVariable Long id);
+    OrderDTO findOrderById(@PathVariable("id") Long id);
 
     @PostMapping("/telegram")
     OrderDTO postOrder(@RequestBody OrderDTO order);
