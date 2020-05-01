@@ -11,11 +11,11 @@ public interface MQBinding {
     String USER_ORDER = "userOrderChannel";
     String ORDER_CANCELLATION = "orderCancellationChannel";
     String ORDER_UPDATE = "orderUpdateChannel";
-    String ORDER_PAYMENT = "orderPaymentChannel";
     String ORDER_PAYMENT_CONFIRMATION = "orderPaymentConfirmationChannel";
     String EXTERNAL_PRODUCT = "externalProductChannel";
     String EXTERNAL_PRODUCT_INPUT = "externalProductInputChannel";
     String ADVERTISING = "advertisingChannel";
+    String RECHARGE_USER_CREDIT = "rechargeUserCreditChannel";
 
     @Output(USER_REGISTRATION)
     MessageChannel userRegistrationChannel();
@@ -32,19 +32,18 @@ public interface MQBinding {
     @Output(ORDER_UPDATE)
     MessageChannel orderUpdateChannel();
 
-    @Input(ORDER_PAYMENT)
-    SubscribableChannel orderPaymentChannel();
-
     @Output(ORDER_PAYMENT_CONFIRMATION)
     MessageChannel userOrderPaymentConfirmationChannel();
 
     @Output(ADVERTISING)
     MessageChannel advertisingChannel();
 
-    @Input(EXTERNAL_PRODUCT_INPUT)
-    SubscribableChannel externalProductInputChannel();
-
     @Output(EXTERNAL_PRODUCT)
     MessageChannel externalProductChannel();
 
+    @Output(RECHARGE_USER_CREDIT)
+    MessageChannel rechargeUserCreditChannel();
+
+    @Input(EXTERNAL_PRODUCT_INPUT)
+    SubscribableChannel externalProductInputChannel();
 }

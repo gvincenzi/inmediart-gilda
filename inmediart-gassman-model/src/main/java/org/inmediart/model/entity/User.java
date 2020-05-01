@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -25,4 +26,6 @@ public class User {
     private Boolean active = Boolean.TRUE;
     @Column
     private Boolean administrator = Boolean.FALSE;
+    @Column
+    private BigDecimal credit = BigDecimal.ZERO;
 }

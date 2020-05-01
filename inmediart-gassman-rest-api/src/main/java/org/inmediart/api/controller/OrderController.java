@@ -8,6 +8,7 @@ import org.inmediart.model.entity.type.ActionType;
 import org.inmediart.model.repository.OrderRepository;
 import org.inmediart.model.repository.ProductRepository;
 import org.inmediart.model.repository.UserRepository;
+import org.inmediart.model.service.InternalPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,8 @@ public class OrderController extends MessageSender<Order> {
     private UserRepository userRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private InternalPaymentService internalPaymentService;
     @Autowired
     private MessageChannel userOrderChannel;
     @Autowired
@@ -71,6 +74,7 @@ public class OrderController extends MessageSender<Order> {
     }
 
     private ResponseEntity<Order> createOrder(@RequestBody Order order) {
+        order = internalPaymentService.processUserOrder(order);
         Order orderPersisted = orderRepository.save(order);
         sendMessage(userOrderChannel,orderPersisted);
         return new ResponseEntity<>(orderPersisted, HttpStatus.CREATED);
@@ -98,6 +102,7 @@ public class OrderController extends MessageSender<Order> {
             order.setOrderId(id);
             order.setUser(orderPersisted.get().getUser());
             order.setProduct(orderPersisted.get().getProduct());
+            order = internalPaymentService.processUserOrder(order);
 
             sendMessage(orderUpdateChannel,order);
 
@@ -111,8 +116,7 @@ public class OrderController extends MessageSender<Order> {
     public ResponseEntity<Boolean> deleteOrder(@PathVariable Long id){
         Optional<Order> orderPersisted = orderRepository.findById(id);
         if(orderPersisted.isPresent()){
-            orderRepository.deleteById(id);
-
+            internalPaymentService.processOrderCancellation(orderPersisted.get());
             sendMessage(orderCancellationChannel,orderPersisted.get());
 
             return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);

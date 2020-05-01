@@ -24,30 +24,11 @@ public class MQListener extends MessageSender<Order> {
     @Autowired
     ExternalProductRepository externalProductRepository;
 
-    @Autowired
-    private MessageChannel orderPaymentConfirmationChannel;
-
     @Value("${gassman.instance.id}")
     private String instanceId;
 
     @Value("${gassman.instance.botName}")
     private String botName;
-
-    @StreamListener(target = MQBinding.ORDER_PAYMENT)
-    public void processUserOrder(GassmanMessage<PaymentDTO> msg) {
-        if(checkInstance(msg)) {
-            PaymentDTO payload = msg.getPayload();
-            Optional<Order> orderPersisted = orderRepository.findById(payload.getOrderId());
-            if (orderPersisted.isPresent()) {
-                orderPersisted.get().setPaid(Boolean.TRUE);
-                orderPersisted.get().setPaymentExternalReference(payload.getPaymentId());
-                orderPersisted.get().setPaymentExternalDateTime(payload.getPaymentDateTime());
-                orderPersisted.get().setAmount(payload.getAmount());
-                orderRepository.save(orderPersisted.get());
-                sendMessage(orderPaymentConfirmationChannel,orderPersisted.get());
-            }
-        }
-    }
 
     @StreamListener(target = MQBinding.EXTERNAL_PRODUCT_INPUT)
     public void processExternalProduct(GassmanMessage<ExternalProduct> msg) {

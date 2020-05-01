@@ -3,6 +3,7 @@ package org.inmediart.api.controller;
 import org.inmediart.commons.binding.MessageSender;
 import org.inmediart.model.entity.User;
 import org.inmediart.model.repository.UserRepository;
+import org.inmediart.model.service.InternalPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.NonUniqueResultException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +20,9 @@ import java.util.Optional;
 public class UserController extends MessageSender<User> {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private InternalPaymentService internalPaymentService;
 
     @Autowired
     private MessageChannel userRegistrationChannel;
@@ -58,34 +63,37 @@ public class UserController extends MessageSender<User> {
 
     @PostMapping
     public ResponseEntity<User> postUser(@RequestBody User user){
-        if(user.getTelegramUserId() != null){
-            Optional<User> userOptional = userRepository.findByTelegramUserId(user.getTelegramUserId());
-            if(userOptional.isPresent()){
-                userOptional.get().setActive(Boolean.TRUE);
-                userOptional.get().setName(user.getName());
-                userOptional.get().setSurname(user.getSurname());
-                userOptional.get().setMail(user.getMail());
-                userRepository.save(userOptional.get());
-                sendUserRegistrationMessage(userOptional.get());
-                return new ResponseEntity<>(userOptional.get(), HttpStatus.CREATED);
+        try {
+            if (user.getTelegramUserId() != null) {
+                Optional<User> userOptional = userRepository.findByTelegramUserId(user.getTelegramUserId());
+                if (userOptional.isPresent()) {
+                    userOptional.get().setActive(Boolean.TRUE);
+                    userOptional.get().setName(user.getName());
+                    userOptional.get().setSurname(user.getSurname());
+                    userOptional.get().setMail(user.getMail());
+                    userRepository.save(userOptional.get());
+                    sendUserRegistrationMessage(userOptional.get());
+                    return new ResponseEntity<>(userOptional.get(), HttpStatus.CREATED);
+                }
             }
-        }
 
-        User userInDB = userRepository.findByMail(user.getMail());
-        if(userInDB != null) {
-            userInDB.setActive(Boolean.TRUE);
-            userInDB.setName(user.getName());
-            userInDB.setSurname(user.getSurname());
-            userInDB.setTelegramUserId(user.getTelegramUserId());
-            userRepository.save(userInDB);
-            sendUserRegistrationMessage(userInDB);
-            return new ResponseEntity<>(userInDB, HttpStatus.CREATED);
-        } else {
-            User userPersisted = userRepository.save(user);
-            sendUserRegistrationMessage(user);
-            return new ResponseEntity<>(userPersisted, HttpStatus.CREATED);
+            User userInDB = userRepository.findByMail(user.getMail());
+            if (userInDB != null) {
+                userInDB.setActive(Boolean.TRUE);
+                userInDB.setName(user.getName());
+                userInDB.setSurname(user.getSurname());
+                userInDB.setTelegramUserId(user.getTelegramUserId());
+                userRepository.save(userInDB);
+                sendUserRegistrationMessage(userInDB);
+                return new ResponseEntity<>(userInDB, HttpStatus.CREATED);
+            } else {
+                User userPersisted = userRepository.save(user);
+                sendUserRegistrationMessage(user);
+                return new ResponseEntity<>(userPersisted, HttpStatus.CREATED);
+            }
+        } catch(NonUniqueResultException ex){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Multiple results for the same telegramUserID",user.getTelegramUserId()), null);
         }
-
     }
 
     @PutMapping("/{id}")
@@ -135,6 +143,7 @@ public class UserController extends MessageSender<User> {
     private ResponseEntity<Boolean> deleteUser(Optional<User> user) {
         user.get().setActive(Boolean.FALSE);
         userRepository.save(user.get());
+        internalPaymentService.processUserCancellation(user.get());
         sendMessage(userCancellationChannel,user.get());
         return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
     }
