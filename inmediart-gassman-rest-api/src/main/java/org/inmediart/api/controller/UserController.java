@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -131,6 +132,7 @@ public class UserController extends MessageSender<User> {
         }
     }
 
+    @Transactional
     @DeleteMapping("/telegram/{id}")
     public ResponseEntity<Boolean> deleteUserByTelegram(@PathVariable("id") Integer id){
         Optional<User> user = userRepository.findByTelegramUserId(id);
