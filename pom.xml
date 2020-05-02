@@ -25,7 +25,7 @@
 		<module>inmediart-gassman-model</module>
 		<module>inmediart-gassman-rest-api</module>
 		<module>inmediart-gassman-mail</module>
-		<module>inmediart-gassman-telegram-bot</module>
+		<module>inmediart-gassman-gui</module>
 	</modules>
 	
 	<dependencyManagement>

@@ -71,17 +71,6 @@ public class InternalCreditController extends MessageSender<Payment> {
         }
     }
 
-    @PostMapping("/{credit}")
-    public ResponseEntity<User> newCredit(@RequestBody User user, @PathVariable("credit") BigDecimal credit) {
-        Optional<User> userCreditCurrent = userRepository.findById(user.getId());
-        if(userCreditCurrent.isPresent()){
-            credit = credit.add(userCreditCurrent.get().getCredit());
-            return new ResponseEntity<>(internalPaymentService.userCreditUpdateCredit(user,credit,RechargeUserCreditType.WEB_ADMIN), HttpStatus.OK);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(userNotFound,user.getId()), null);
-        }
-    }
-
     @GetMapping("/{userId}/log")
     public ResponseEntity<List<RechargeUserCreditLog>> findRechargeUserCreditLogByUserId(@PathVariable("userId") Long userId) {
         Optional<User> userCredit = userRepository.findById(userId);

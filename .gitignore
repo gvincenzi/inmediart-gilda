@@ -5,6 +5,11 @@ out/**
 !**/src/main/**
 !**/src/test/**
 data/**
+build/**
+config/**
+node_modules/**
+package**
+webpack**
 
 ### STS ###
 .apt_generated

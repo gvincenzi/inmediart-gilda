@@ -1,7 +1,7 @@
 package org.inmediart.model.entity.type;
 
 public enum ActionType {
-    BUY("Acquisto");
+    BUY("Acquisto"),USER_SEARCH("Ricerca Utente"),USER_MANAGEMENT("Gestione Utente"),USER_CREDIT("Ricarica credito di un utente");
 
     private String label;
 

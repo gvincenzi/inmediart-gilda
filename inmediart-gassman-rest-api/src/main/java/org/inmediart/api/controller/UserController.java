@@ -1,6 +1,7 @@
 package org.inmediart.api.controller;
 
 import org.inmediart.commons.binding.MessageSender;
+import org.inmediart.model.entity.RechargeUserCreditType;
 import org.inmediart.model.entity.User;
 import org.inmediart.model.repository.UserRepository;
 import org.inmediart.model.service.InternalPaymentService;
@@ -98,7 +99,11 @@ public class UserController extends MessageSender<User> {
 
     @PutMapping("/{id}")
     public ResponseEntity<User> putUser(@PathVariable("id") Long id, @RequestBody User user){
-        if(userRepository.existsById(id)){
+        Optional<User> userInDb = userRepository.findById(id);
+        if(userInDb.isPresent()){
+            if(!userInDb.get().getCredit().equals(user.getCredit())){
+                internalPaymentService.userCreditUpdateCredit(userInDb.get(),user.getCredit(), RechargeUserCreditType.WEB_ADMIN);
+            }
             user.setId(id);
             return new ResponseEntity<>(userRepository.save(user), HttpStatus.ACCEPTED);
         } else {
