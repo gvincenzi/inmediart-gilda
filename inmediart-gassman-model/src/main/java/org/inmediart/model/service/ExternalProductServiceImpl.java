@@ -1,6 +1,6 @@
 package org.inmediart.model.service;
 
-import org.inmediart.commons.binding.MessageSender;
+import org.inmediart.commons.messaging.MessageSender;
 import org.inmediart.model.entity.ExternalProduct;
 import org.inmediart.model.entity.Product;
 import org.springframework.beans.factory.annotation.Autowired;

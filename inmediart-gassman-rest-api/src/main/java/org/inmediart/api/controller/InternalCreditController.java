@@ -1,7 +1,7 @@
 package org.inmediart.api.controller;
 
-import org.inmediart.commons.binding.GassmanMessage;
-import org.inmediart.commons.binding.MessageSender;
+import org.inmediart.commons.messaging.GassmanMessage;
+import org.inmediart.commons.messaging.MessageSender;
 import org.inmediart.model.entity.*;
 import org.inmediart.model.repository.OrderRepository;
 import org.inmediart.model.repository.PaymentRepository;

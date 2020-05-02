@@ -1,6 +1,6 @@
 package org.inmediart.model.job;
 
-import org.inmediart.commons.binding.MessageSenderThread;
+import org.inmediart.commons.messaging.MessageSenderThread;
 import org.inmediart.model.dto.AdvertisingDTO;
 import org.inmediart.model.entity.ExternalProduct;
 import org.inmediart.model.entity.Order;

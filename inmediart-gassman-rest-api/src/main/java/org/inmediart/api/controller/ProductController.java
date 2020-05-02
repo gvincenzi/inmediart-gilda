@@ -1,6 +1,6 @@
 package org.inmediart.api.controller;
 
-import org.inmediart.commons.binding.MessageSender;
+import org.inmediart.commons.messaging.MessageSender;
 import org.inmediart.model.entity.Order;
 import org.inmediart.model.entity.Product;
 import org.inmediart.model.repository.OrderRepository;

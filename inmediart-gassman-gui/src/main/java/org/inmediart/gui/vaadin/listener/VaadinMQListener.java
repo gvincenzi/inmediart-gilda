@@ -1,8 +1,8 @@
 package org.inmediart.gui.vaadin.listener;
 
 import com.vaadin.flow.component.UI;
-import org.inmediart.commons.binding.GUIMQBinding;
-import org.inmediart.commons.binding.GassmanMessage;
+import org.inmediart.gui.binding.GUIMQBinding;
+import org.inmediart.commons.messaging.GassmanMessage;
 import org.inmediart.gui.dto.OrderDTO;
 import org.inmediart.gui.dto.UserDTO;
 import org.inmediart.gui.vaadin.view.order.OrdersView;

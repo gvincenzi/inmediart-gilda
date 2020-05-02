@@ -1,11 +1,11 @@
-package org.inmediart.commons.binding;
+package org.inmediart.api.binding;
 
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.SubscribableChannel;
 
-public interface MQBinding {
+public interface RestAPIMQBinding {
     String USER_REGISTRATION = "userRegistrationChannel";
     String USER_CANCELLATION = "userCancellationChannel";
     String USER_ORDER = "userOrderChannel";

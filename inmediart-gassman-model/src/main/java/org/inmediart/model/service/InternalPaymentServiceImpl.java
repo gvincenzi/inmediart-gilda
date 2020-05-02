@@ -1,6 +1,6 @@
 package org.inmediart.model.service;
 
-import org.inmediart.commons.binding.MessageSender;
+import org.inmediart.commons.messaging.MessageSender;
 import org.inmediart.model.entity.*;
 import org.inmediart.model.repository.OrderRepository;
 import org.inmediart.model.repository.PaymentRepository;

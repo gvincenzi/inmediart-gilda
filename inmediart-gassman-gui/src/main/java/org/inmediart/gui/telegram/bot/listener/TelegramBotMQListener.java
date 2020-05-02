@@ -1,7 +1,7 @@
 package org.inmediart.gui.telegram.bot.listener;
 
-import org.inmediart.commons.binding.GUIMQBinding;
-import org.inmediart.commons.binding.GassmanMessage;
+import org.inmediart.gui.binding.GUIMQBinding;
+import org.inmediart.commons.messaging.GassmanMessage;
 import org.inmediart.gui.dto.OrderDTO;
 import org.inmediart.gui.dto.UserDTO;
 import org.inmediart.gui.telegram.bot.service.TelegramAdministratorService;

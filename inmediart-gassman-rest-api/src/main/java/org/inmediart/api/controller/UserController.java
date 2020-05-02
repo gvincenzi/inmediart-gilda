@@ -1,6 +1,6 @@
 package org.inmediart.api.controller;
 
-import org.inmediart.commons.binding.MessageSender;
+import org.inmediart.commons.messaging.MessageSender;
 import org.inmediart.model.entity.RechargeUserCreditType;
 import org.inmediart.model.entity.User;
 import org.inmediart.model.repository.UserRepository;

@@ -1,9 +1,8 @@
-package org.inmediart.model.listener;
+package org.inmediart.api.listener;
 
-import org.inmediart.commons.binding.GassmanMessage;
-import org.inmediart.commons.binding.MQBinding;
-import org.inmediart.commons.binding.MessageSender;
-import org.inmediart.model.dto.PaymentDTO;
+import org.inmediart.api.binding.RestAPIMQBinding;
+import org.inmediart.commons.messaging.GassmanMessage;
+import org.inmediart.commons.messaging.MessageSender;
 import org.inmediart.model.entity.ExternalProduct;
 import org.inmediart.model.entity.Order;
 import org.inmediart.model.repository.ExternalProductRepository;
@@ -12,11 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
-import org.springframework.messaging.MessageChannel;
 
-import java.util.Optional;
-
-@EnableBinding(MQBinding.class)
+@EnableBinding(RestAPIMQBinding.class)
 public class MQListener extends MessageSender<Order> {
     @Autowired
     OrderRepository orderRepository;
@@ -30,7 +26,7 @@ public class MQListener extends MessageSender<Order> {
     @Value("${gassman.instance.botName}")
     private String botName;
 
-    @StreamListener(target = MQBinding.EXTERNAL_PRODUCT_INPUT)
+    @StreamListener(target = RestAPIMQBinding.EXTERNAL_PRODUCT_INPUT)
     public void processExternalProduct(GassmanMessage<ExternalProduct> msg) {
         if (!checkInstance(msg)) {
             externalProductRepository.save(msg.getPayload());

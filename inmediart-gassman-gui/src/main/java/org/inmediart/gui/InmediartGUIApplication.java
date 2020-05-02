@@ -1,6 +1,6 @@
 package org.inmediart.gui;
 
-import org.inmediart.commons.binding.GUIMQBinding;
+import org.inmediart.gui.binding.GUIMQBinding;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;

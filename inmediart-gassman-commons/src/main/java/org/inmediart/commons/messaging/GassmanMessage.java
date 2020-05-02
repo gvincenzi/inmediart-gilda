@@ -1,4 +1,4 @@
-package org.inmediart.commons.binding;
+package org.inmediart.commons.messaging;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package org.inmediart.commons.binding;
+package org.inmediart.commons.messaging;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
