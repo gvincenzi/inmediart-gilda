@@ -1,8 +1,8 @@
 package org.inmediart.model.entity.type;
 
 public enum ActionType {
-    BUY("Acquisto contenuto multimediale"),
-    BUY_PHISICAL("Acquisto prodotto fisico"),
+    BUY("Acquisto"),
+    BUY_WITH_DELIVERY("Acquisto con consegna"),
     USER_SEARCH("Ricerca Utente"),
     SELECT_PRODUCT("Selezione prodotto"),
     SELECT_ADDRESS("Selezione indirizzo"),

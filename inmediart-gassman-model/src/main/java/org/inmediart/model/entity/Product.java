@@ -31,6 +31,8 @@ public class Product {
     private Boolean active = Boolean.TRUE;
     @Column
     private Boolean advertising = Boolean.FALSE;
+    @Column
+    private Boolean delivery = Boolean.FALSE;
 
     @Override
     public boolean equals(Object o) {
@@ -41,13 +43,14 @@ public class Product {
                 name.equals(product.name) &&
                 description.equals(product.description) &&
                 url.equals(product.url) &&
-                ((price==null && product.price==null) || price.equals(product.price)) &&
-                ((availableQuantity==null && product.availableQuantity==null) || availableQuantity.equals(product.availableQuantity)) &&
+                ((delivery==null && product.delivery==null) || (delivery!=null && delivery.equals(product.delivery))) &&
+                ((price==null && product.price==null) || (price!=null && price.equals(product.price))) &&
+                ((availableQuantity==null && product.availableQuantity==null) || (availableQuantity!=null && availableQuantity.equals(product.availableQuantity))) &&
                 active.equals(product.active);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productId, name, description, active);
+        return Objects.hash(productId, name, description, active, delivery);
     }
 }

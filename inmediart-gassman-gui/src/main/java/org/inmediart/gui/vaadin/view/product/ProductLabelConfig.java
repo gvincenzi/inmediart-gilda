@@ -18,4 +18,5 @@ public class ProductLabelConfig {
     private String active;
     private String showAll;
     private String availableQuantity;
+    private String delivery;
 }

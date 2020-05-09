@@ -2,10 +2,10 @@ package org.inmediart.gui.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.inmediart.model.entity.type.ActionType;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.time.LocalDateTime;
 
 @Data
@@ -32,8 +32,8 @@ public class OrderDTO implements Comparable<OrderDTO>{
         return "\nID : " + orderId +
                 "\nConteunto : " + product +
                 "\nTipo di ordine : " + actionType.getLabel() +
-                (quantity!=null ? "\nQuantità : " + quantity : "" ) +
-                (address!=null ? "\nIndirizzo di spedizione : " + address : "" ) +
-                (paid ? (this.getProduct().getPassword()!=null ? "\n\n**Password : " + this.getProduct().getPassword() : "") : "\n\n**Quest'ordine non è ancora stato pagato**");
+                (quantity!=null ? "\nQuantità : " + quantity : StringUtils.EMPTY ) +
+                (address!=null ? "\nIndirizzo di spedizione : " + address : StringUtils.EMPTY ) +
+                (paid ? (this.getProduct().getPassword()!=null ? "\n\n**Password : " + this.getProduct().getPassword() : StringUtils.EMPTY) : "\n\n**Quest'ordine non è ancora stato pagato**");
     }
 }

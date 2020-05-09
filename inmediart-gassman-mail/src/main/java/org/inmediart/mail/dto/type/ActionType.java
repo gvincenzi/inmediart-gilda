@@ -1,8 +1,8 @@
 package org.inmediart.mail.dto.type;
 
 public enum ActionType {
-    BUY("Acquisto contenuto multimediale"),
-    BUY_PHISICAL("Acquisto prodotto fisico");
+    BUY("Acquisto"),
+    BUY_WITH_DELIVERY("Acquisto con consegna");
 
     private String label;
 

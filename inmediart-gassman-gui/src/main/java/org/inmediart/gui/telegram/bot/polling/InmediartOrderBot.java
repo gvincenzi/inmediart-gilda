@@ -163,7 +163,7 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     Collections.sort(products);
                     for (ProductDTO productDTO : products) {
                         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-                        rowInline.add(new InlineKeyboardButton().setText(productDTO.getName()).setCallbackData("detailProduct#" + productDTO.getProductId()));
+                        rowInline.add(new InlineKeyboardButton().setText(productDTO.getName() + (productDTO.getAvailableQuantity() != null ? String.format(" (disponibilità: %d)",productDTO.getAvailableQuantity().intValue()) : StringUtils.EMPTY)).setCallbackData("detailProduct#" + productDTO.getProductId()));
                         rowsInline.add(rowInline);
                     }
 
@@ -188,7 +188,7 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
             } else if (call_data.startsWith("selectProduct#")) {
                 ProductDTO productDTO = resourceManagerService.getProduct(call_data);
 
-                if(productDTO.getAvailableQuantity() == null) {
+                if(productDTO.getAvailableQuantity() == null && !productDTO.getDelivery()) {
                     OrderDTO orderDTO = new OrderDTO();
                     orderDTO.setActionType(ActionType.BUY);
                     UserDTO userDTO = new UserDTO();
@@ -197,13 +197,20 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     orderDTO.setProduct(productDTO);
 
                     message = itemFactory.message(chat_id, resourceManagerService.postOrder(orderDTO));
-                } else {
+                } else if(productDTO.getAvailableQuantity() != null) {
                     Action action = new Action();
                     action.setActionType(ActionType.SELECT_PRODUCT);
                     action.setTelegramUserId(user_id);
                     action.setSelectedProductId(productDTO.getProductId());
                     resourceManagerService.saveAction(action);
                     message = itemFactory.selectProductQuantity(chat_id);
+                } else if(productDTO.getAvailableQuantity() == null && productDTO.getDelivery()){
+                    Action action = new Action();
+                    action.setActionType(ActionType.SELECT_ADDRESS);
+                    action.setTelegramUserId(user_id);
+                    action.setSelectedProductId(productDTO.getProductId());
+                    resourceManagerService.saveAction(action);
+                    message = itemFactory.selectAddress(chat_id);
                 }
             } else if (call_data.equalsIgnoreCase("usermng")) {
                 Action action = new Action();
@@ -256,19 +263,32 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                 resourceManagerService.addUser(update.getMessage().getFrom(), update.getMessage().getText());
                 message = itemFactory.message(chat_id, "Nuovo utente iscritto correttamente : una mail di conferma è stata inviata all'indirizzo specificato.\nClicca su /start per iniziare.");
             } else if (update.getMessage().getText() != null && StringUtils.isNumeric(update.getMessage().getText()) && actionInProgress !=null && ActionType.SELECT_PRODUCT.equals(actionInProgress.getActionType())) {
-                Action action = new Action();
-                action.setActionType(ActionType.SELECT_ADDRESS);
-                action.setTelegramUserId(user_id);
-                action.setSelectedProductId(actionInProgress.getSelectedProductId());
-                action.setQuantity(Double.parseDouble(update.getMessage().getText()));
-                resourceManagerService.saveAction(action);
+                ProductDTO productDTO = resourceManagerService.getProductById(actionInProgress.getSelectedProductId());
+                if(productDTO.getDelivery()) {
+                    Action action = new Action();
+                    action.setActionType(ActionType.SELECT_ADDRESS);
+                    action.setTelegramUserId(user_id);
+                    action.setSelectedProductId(actionInProgress.getSelectedProductId());
+                    action.setQuantity(Double.parseDouble(update.getMessage().getText()));
+                    resourceManagerService.saveAction(action);
+                    message = itemFactory.selectAddress(chat_id);
+                } else {
+                    OrderDTO orderDTO = new OrderDTO();
+                    orderDTO.setActionType(ActionType.BUY);
+                    UserDTO userDTO = new UserDTO();
+                    userDTO.setTelegramUserId(user_id);
+                    orderDTO.setUser(userDTO);
+                    orderDTO.setProduct(productDTO);
+                    orderDTO.setQuantity(Double.parseDouble(update.getMessage().getText()));
+
+                    message = itemFactory.message(chat_id, resourceManagerService.postOrder(orderDTO));
+                }
                 resourceManagerService.deleteActionInProgress(actionInProgress);
-                message = itemFactory.selectAddress(chat_id);
             } else if (update.getMessage().getText() != null && !StringUtils.isNumeric(update.getMessage().getText()) && actionInProgress !=null && ActionType.SELECT_ADDRESS.equals(actionInProgress.getActionType())) {
                 resourceManagerService.deleteActionInProgress(actionInProgress);
                 ProductDTO productDTO = resourceManagerService.getProductById(actionInProgress.getSelectedProductId());
                 OrderDTO orderDTO = new OrderDTO();
-                orderDTO.setActionType(ActionType.BUY_PHISICAL);
+                orderDTO.setActionType(ActionType.BUY_WITH_DELIVERY);
                 UserDTO userDTO = new UserDTO();
                 userDTO.setTelegramUserId(user_id);
                 orderDTO.setUser(userDTO);

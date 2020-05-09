@@ -36,7 +36,7 @@ public class ProductEditor extends HorizontalLayout implements KeyNotifier {
 
     private TextField name, description, url, password;
     private NumberField price,availableQuantity;
-    private Checkbox active;
+    private Checkbox active,delivery;
     private Button save, reset, delete, openDocument;
 
     private Binder<ProductDTO> binder = new Binder<>(ProductDTO.class);
@@ -58,6 +58,7 @@ public class ProductEditor extends HorizontalLayout implements KeyNotifier {
         price = new NumberField(productLabelConfig.getPrice());
         availableQuantity = new NumberField(productLabelConfig.getAvailableQuantity());
         active = new Checkbox(productLabelConfig.getActive());
+        delivery = new Checkbox(productLabelConfig.getDelivery());
 
         /* Action buttons */
         save = new Button(buttonLabelConfig.getSave(), VaadinIcon.CHECK.create());
@@ -66,15 +67,13 @@ public class ProductEditor extends HorizontalLayout implements KeyNotifier {
         openDocument = new Button(buttonLabelConfig.getOpenDocument(), VaadinIcon.BULLSEYE.create());
 
         HorizontalLayout actions = new HorizontalLayout(save, delete, openDocument);
-        VerticalLayout editorFields = new VerticalLayout(name, description, url, password, price, availableQuantity, active, actions);
+        VerticalLayout editorFields = new VerticalLayout(name, description, url, password, price, availableQuantity, delivery, active, actions);
         editorFields.setWidth("30%");
-        grid.setColumns("user","actionType","quantity","address","paid","paymentExternalReference","paymentExternalDateTime","amount");
+        grid.setColumns("user","quantity","address","paid","paymentExternalDateTime","amount");
         grid.getColumnByKey("user").setHeader(orderLabelConfig.getUser());
-        grid.getColumnByKey("actionType").setHeader(orderLabelConfig.getActionType());
         grid.getColumnByKey("quantity").setHeader(orderLabelConfig.getQuantity());
         grid.getColumnByKey("address").setHeader(orderLabelConfig.getAddress());
         grid.getColumnByKey("paid").setHeader(orderLabelConfig.getPaid());
-        grid.getColumnByKey("paymentExternalReference").setHeader(orderLabelConfig.getPaymentExternalReference());
         grid.getColumnByKey("paymentExternalDateTime").setHeader(orderLabelConfig.getPaymentExternalDateTime());
         grid.getColumnByKey("amount").setHeader(orderLabelConfig.getAmount());
 

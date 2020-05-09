@@ -2,6 +2,7 @@ package org.inmediart.mail.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.inmediart.mail.dto.type.ActionType;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ public class OrderDTO implements Comparable<OrderDTO>{
     private Boolean paid = Boolean.FALSE;
     private BigDecimal amount;
     private Integer quantity;
+    private String address;
 
     @Override
     public int compareTo(OrderDTO orderDTO) {
@@ -27,7 +29,8 @@ public class OrderDTO implements Comparable<OrderDTO>{
         return "\nID : " + orderId +
                 "\nContenuto : " + product +
                 "\nTipo di ordine : " + actionType.getLabel() +
-                (quantity!=null ? "\nQuantità : " + quantity : "" ) +
-                (paid ? (this.getProduct().getPassword()!=null ? "\n\n**Password : " + this.getProduct().getPassword() : "") : "\n\n**Quest'ordine non è ancora stato pagato**");
+                (quantity!=null ? "\nQuantità : " + quantity : StringUtils.EMPTY ) +
+                (address!=null ? "\nIndirizzo di spedizione : " + address : StringUtils.EMPTY ) +
+                (paid ? (this.getProduct().getPassword()!=null ? "\n\n**Password : " + this.getProduct().getPassword() : StringUtils.EMPTY) : "\n\n**Quest'ordine non è ancora stato pagato**");
     }
 }

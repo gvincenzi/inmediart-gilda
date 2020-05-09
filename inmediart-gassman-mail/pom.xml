@@ -16,6 +16,7 @@
     <properties>
         <java.version>1.8</java.version>
         <spring-cloud.version>Greenwich.SR4</spring-cloud.version>
+        <org.apache.commons>3.9</org.apache.commons>
     </properties>
 
     <dependencies>
@@ -31,6 +32,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${org.apache.commons}</version>
         </dependency>
 
         <dependency>

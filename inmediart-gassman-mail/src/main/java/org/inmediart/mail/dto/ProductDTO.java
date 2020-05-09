@@ -2,6 +2,7 @@ package org.inmediart.mail.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -17,14 +18,15 @@ public class ProductDTO implements Comparable<ProductDTO> {
     private Integer availableQuantity;
     private String password;
     private Boolean active = Boolean.TRUE;
+    private Boolean delivery = Boolean.FALSE;
 
     @Override
     public String toString() {
         return  " Nome :'" + name + '\'' +
                 "\nDescrizione :'" + description + '\''+
-                (url!=null ? ("\nURL :'" + url + '\'') : "") +
-                (availableQuantity!=null ? ("\nQuantita' disponibile :'" + availableQuantity + '\'') : "") +
-                "\nPrezzo :'" + NumberFormat.getCurrencyInstance().format(price) + '\'';
+                (url!=null ? ("\nURL :'" + url + '\'') : StringUtils.EMPTY) +
+                "\nPrezzo :'" + NumberFormat.getCurrencyInstance().format(price) + '\'' +
+                (delivery!=null && delivery ? " (con consegna a domicilio)" : StringUtils.EMPTY);
     }
 
     @Override
