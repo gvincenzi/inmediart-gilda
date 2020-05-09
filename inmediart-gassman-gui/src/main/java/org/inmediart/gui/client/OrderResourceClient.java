@@ -17,7 +17,7 @@ public interface OrderResourceClient {
     OrderDTO findOrderById(@PathVariable("id") Long id);
 
     @PostMapping("/telegram")
-    OrderDTO postOrder(@RequestBody OrderDTO order);
+    String postOrder(@RequestBody OrderDTO order);
 
     @DeleteMapping("/{id}")
     void deleteOrder(@PathVariable("id") Long id);

@@ -42,6 +42,9 @@ public class OrderController extends MessageSender<Order> {
     @Value("${message.quantityNotAvailable}")
     public String quantityNotAvailable;
 
+    @Value("${message.orderCreated}")
+    public String orderCreated;
+
     @GetMapping("/users/{id}")
     public ResponseEntity<List<Order>> findAllOrdersByUser(@PathVariable("id") Long id){
         Optional<User> user = userRepository.findById(id);
@@ -73,25 +76,25 @@ public class OrderController extends MessageSender<Order> {
     }
 
     @PostMapping
-    public ResponseEntity<Order> postOrder(@RequestBody Order order){
+    public ResponseEntity<String> postOrder(@RequestBody Order order){
         setJoinedEntities(order);
         return createOrder(order);
     }
 
-    private ResponseEntity<Order> createOrder(@RequestBody Order order) {
+    private ResponseEntity<String> createOrder(@RequestBody Order order) {
         try {
             order = internalPaymentService.processUserOrder(order);
             Order orderPersisted = orderRepository.save(order);
             sendMessage(userOrderChannel,orderPersisted);
-            return new ResponseEntity<>(orderPersisted, HttpStatus.CREATED);
+            return new ResponseEntity<>(orderCreated, HttpStatus.CREATED);
         }catch (GassmanAvailableQuantityException ex){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,quantityNotAvailable,null);
+            return new ResponseEntity<>(quantityNotAvailable,HttpStatus.OK);
         }
 
     }
 
     @PostMapping("/telegram")
-    public ResponseEntity<Order> postOrderByTelegram(@RequestBody Order order){
+    public ResponseEntity<String> postOrderByTelegram(@RequestBody Order order){
         Optional<User> user = userRepository.findByTelegramUserId(order.getUser().getTelegramUserId());
         Optional<Product> product = productRepository.findById(order.getProduct().getProductId());
         if(!user.isPresent()){

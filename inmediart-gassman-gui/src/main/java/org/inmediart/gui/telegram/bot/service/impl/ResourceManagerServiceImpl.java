@@ -90,12 +90,7 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 
     @Override
     public String postOrder(OrderDTO orderDTO) {
-        try {
-            orderResourceClient.postOrder(orderDTO);
-        }catch(FeignException ex){
-            return ex.getMessage();
-        }
-        return "Ordine registrato correttamente, una mail di conferma con una sintesi dell'acquisto e le modalità di pagamento è stata inviata sul tuo indirizzo email.\nClicca su /start per tornare al menu principale.";
+        return orderResourceClient.postOrder(orderDTO) + "\nClicca su /start per tornare al menu principale.";
     }
 
     @Override
