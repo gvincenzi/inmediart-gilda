@@ -1,14 +1,14 @@
 package org.inmediart.gui.telegram.bot.polling;
 
 import org.apache.commons.lang3.StringUtils;
-import org.inmediart.model.entity.Action;
-import org.inmediart.model.entity.type.ActionType;
 import org.inmediart.gui.dto.OrderDTO;
 import org.inmediart.gui.dto.ProductDTO;
 import org.inmediart.gui.dto.UserDTO;
 import org.inmediart.gui.telegram.bot.polling.factory.ItemFactory;
 import org.inmediart.gui.telegram.bot.service.ResourceManagerService;
 import org.inmediart.gui.telegram.bot.service.TelegramAdministratorService;
+import org.inmediart.model.entity.Action;
+import org.inmediart.model.entity.type.ActionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -110,6 +109,10 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                         rowsInline.add(rowInline);
                     }
 
+                    List<InlineKeyboardButton> rowInline = new ArrayList<>();
+                    rowInline.add(new InlineKeyboardButton().setText("Torna al menù principale").setCallbackData("welcomeMenu"));
+                    rowsInline.add(rowInline);
+
                     markupInline.setKeyboard(rowsInline);
                     message = itemFactory.message(chat_id,"Qui di seguito la lista dei tuoi ordini in corso, per accedere ai dettagli cliccare sull'ordine:\n");
 
@@ -118,33 +121,14 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
             } else if (call_data.startsWith("orderDetails#")) {
                 OrderDTO orderDTO = resourceManagerService.getOrder(call_data);
                 message = itemFactory.message(chat_id,orderDTO.toString());
-                InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-                List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-                List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
-                List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
-                List<InlineKeyboardButton> rowInline3 = new ArrayList<>();
-                List<InlineKeyboardButton> rowInline4 = new ArrayList<>();
-
-                rowInline1.add(new InlineKeyboardButton().setText("Paga questo ordine : "+ NumberFormat.getCurrencyInstance().format(orderDTO.getAmount())).setCallbackData("makePayment#"+orderDTO.getOrderId()));
-                rowInline2.add(new InlineKeyboardButton().setText("Annulla questo ordine").setCallbackData("deleteOrder#"+orderDTO.getOrderId()));
-                rowInline3.add(new InlineKeyboardButton().setText("Guarda il contenuto").setUrl(orderDTO.getProduct().getUrl()));
-                rowInline4.add(new InlineKeyboardButton().setText("Torna alla lista").setCallbackData("listaOrdini"));
-                // Set the keyboard to the markup
-                if(!orderDTO.getPaid()){
-                    rowsInline.add(rowInline1);
-                    rowsInline.add(rowInline2);
-                } else {
-                    rowsInline.add(rowInline3);
-                }
-
-                // rowInline1.
-                rowsInline.add(rowInline4);
-                // Add it to the message
-                markupInline.setKeyboard(rowsInline);
-                ((SendMessage)message).setReplyMarkup(markupInline);
+                itemFactory.orderDetailsMessageBuilder((SendMessage) message, resourceManagerService.getOrder(call_data));
             } else if (call_data.startsWith("makePayment#")) {
+                String[] split = call_data.split("#");
+                Long orderId = Long.parseLong(split[1]);
+                String postOrderMessage = resourceManagerService.makePayment(orderId);
                 OrderDTO orderDTO = resourceManagerService.getOrder(call_data);
-                message = itemFactory.message(chat_id, resourceManagerService.makePayment(orderDTO) + "\nClicca su /start per tornare al menu principale.");
+                message = itemFactory.message(chat_id,  postOrderMessage + "\n" + orderDTO.toString());
+                itemFactory.orderDetailsMessageBuilder((SendMessage) message, orderDTO);
             } else if (call_data.startsWith("deleteOrder#")) {
                 OrderDTO orderDTO = resourceManagerService.getOrder(call_data);
                 if(orderDTO.getPaid()){
@@ -178,10 +162,13 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
                     List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
                     List<InlineKeyboardButton> rowInline = new ArrayList<>();
+                    List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
                     rowInline.add(new InlineKeyboardButton().setText("Ordina questo prodotto").setCallbackData("selectProduct#" + productDTO.getProductId()));
-                    rowInline.add(new InlineKeyboardButton().setText("Torna alla lista").setCallbackData("listaProdotti"));
+                    rowInline.add(new InlineKeyboardButton().setText("Torna alla lista dei prodotti").setCallbackData("listaProdotti"));
+                    rowInline2.add(new InlineKeyboardButton().setText("Torna al menù principale").setCallbackData("welcomeMenu"));
                     // Set the keyboard to the markup
                     rowsInline.add(rowInline);
+                    rowsInline.add(rowInline2);
                     // Add it to the message
                     markupInline.setKeyboard(rowsInline);
                     ((SendMessage)message).setReplyMarkup(markupInline);
@@ -196,7 +183,7 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     orderDTO.setUser(userDTO);
                     orderDTO.setProduct(productDTO);
 
-                    message = itemFactory.message(chat_id, resourceManagerService.postOrder(orderDTO));
+                    message = postOrder(user_id, chat_id, orderDTO);
                 } else if(productDTO.getAvailableQuantity() != null) {
                     Action action = new Action();
                     action.setActionType(ActionType.SELECT_PRODUCT);
@@ -251,6 +238,8 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     resourceManagerService.addCredit(actionInProgress.getTelegramUserIdToManage(), BigDecimal.valueOf(credit));
                     message = itemFactory.message(chat_id, "Credito aggiornato correttamente\nClicca su /start per tornare al menu principale.");
                 }
+            } else if (call_data.startsWith("welcomeMenu")) {
+                message = itemFactory.welcomeMessage(update.getCallbackQuery().getMessage(), user_id);
             }
         } else if (update.hasMessage()){
             user_id = update.getMessage().getFrom().getId();
@@ -258,7 +247,7 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
             Action actionInProgress = getActionInProgress(user_id);
 
             if (update.getMessage().getText() != null && update.getMessage().getText().equalsIgnoreCase("/start")) {
-                message = itemFactory.welcomeMessage(update);
+                message = itemFactory.welcomeMessage(update.getMessage(), user_id);
             } else if (update.getMessage().getText() != null && update.getMessage().getText().contains("@") && actionInProgress ==null) {
                 resourceManagerService.addUser(update.getMessage().getFrom(), update.getMessage().getText());
                 message = itemFactory.message(chat_id, "Nuovo utente iscritto correttamente : una mail di conferma è stata inviata all'indirizzo specificato.\nClicca su /start per iniziare.");
@@ -281,7 +270,7 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     orderDTO.setProduct(productDTO);
                     orderDTO.setQuantity(Double.parseDouble(update.getMessage().getText()));
 
-                    message = itemFactory.message(chat_id, resourceManagerService.postOrder(orderDTO));
+                    message = postOrder(user_id, chat_id, orderDTO);
                 }
                 resourceManagerService.deleteActionInProgress(actionInProgress);
             } else if (update.getMessage().getText() != null && !StringUtils.isNumeric(update.getMessage().getText()) && actionInProgress !=null && ActionType.SELECT_ADDRESS.equals(actionInProgress.getActionType())) {
@@ -296,9 +285,9 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                 orderDTO.setQuantity(actionInProgress.getQuantity());
                 orderDTO.setAddress(update.getMessage().getText());
 
-                message = itemFactory.message(chat_id, resourceManagerService.postOrder(orderDTO));
+                message = postOrder(user_id, chat_id, orderDTO);
             } else if (update.hasMessage()) {
-                message = itemFactory.welcomeMessage(update);
+                message = itemFactory.welcomeMessage(update.getMessage(), user_id);
             }
         }
 
@@ -311,6 +300,34 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private BotApiMethod postOrder(Integer user_id, Long chat_id, OrderDTO orderDTO) {
+        BotApiMethod message;
+        String postOrderResult = resourceManagerService.postOrder(orderDTO);
+        List<OrderDTO> orders = resourceManagerService.getOrders(user_id);
+        if (orders.isEmpty()) {
+            message = itemFactory.message(chat_id,postOrderResult + "\nNon hai ordini in corso");
+        } else {
+            InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+            Collections.sort(orders);
+            for (OrderDTO order : orders) {
+                List<InlineKeyboardButton> rowInline = new ArrayList<>();
+                rowInline.add(new InlineKeyboardButton().setText("ID#" + order.getOrderId() + " : " + order.getProduct().getName()).setCallbackData("orderDetails#" + order.getOrderId()));
+                rowsInline.add(rowInline);
+            }
+
+            List<InlineKeyboardButton> rowInline = new ArrayList<>();
+            rowInline.add(new InlineKeyboardButton().setText("Torna al menù principale").setCallbackData("welcomeMenu"));
+            rowsInline.add(rowInline);
+
+            markupInline.setKeyboard(rowsInline);
+            message = itemFactory.message(chat_id, postOrderResult + "\nQui di seguito la lista dei tuoi ordini in corso, per accedere ai dettagli cliccare sull'ordine:\n");
+
+            ((SendMessage) message).setReplyMarkup(markupInline);
+        }
+        return message;
     }
 
     private Action getActionInProgress(Integer user_id) {

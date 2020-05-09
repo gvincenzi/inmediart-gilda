@@ -90,7 +90,7 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 
     @Override
     public String postOrder(OrderDTO orderDTO) {
-        return orderResourceClient.postOrder(orderDTO) + "\nClicca su /start per tornare al menu principale.";
+        return orderResourceClient.postOrder(orderDTO);
     }
 
     @Override
@@ -120,8 +120,8 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
     }
 
     @Override
-    public String makePayment(OrderDTO orderDTO) {
-        return userCreditResourceClient.makePayment(orderDTO.getOrderId());
+    public String makePayment(Long orderId) {
+        return userCreditResourceClient.makePayment(orderId);
     }
 
     @Override

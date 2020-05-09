@@ -22,7 +22,7 @@ public interface ResourceManagerService {
     List<OrderDTO> getOrders(Integer user_id);
     UserCreditDTO getCredit(Integer user_id);
     UserCreditDTO addCredit(Integer user_id, BigDecimal credit);
-    String makePayment(OrderDTO orderDTO);
+    String makePayment(Long orderId);
     void deleteOrder(OrderDTO orderDTO);
     List<ProductDTO> getProducts();
     ProductDTO getProduct(String call_data);

@@ -1,17 +1,19 @@
 package org.inmediart.gui.telegram.bot.polling.factory.impl;
 
-import org.inmediart.model.entity.Action;
-import org.inmediart.model.entity.type.ActionType;
+import org.inmediart.gui.dto.OrderDTO;
 import org.inmediart.gui.dto.UserDTO;
 import org.inmediart.gui.telegram.bot.polling.factory.ItemFactory;
 import org.inmediart.gui.telegram.bot.service.ResourceManagerService;
+import org.inmediart.model.entity.Action;
+import org.inmediart.model.entity.type.ActionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,45 +22,45 @@ public class ItemFactoryImpl implements ItemFactory {
     @Autowired
     ResourceManagerService resourceManagerService;
 
-    public SendMessage welcomeMessage(Update update) {
+    public SendMessage welcomeMessage(Message update, Integer user_id) {
         SendMessage message;
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
-        UserDTO user = resourceManagerService.findUserByTelegramId(update.getMessage().getFrom().getId());
+        UserDTO user = resourceManagerService.findUserByTelegramId(user_id);
         if(user != null) {
             Action actionInProgress = resourceManagerService.getActionInProgress(user.getTelegramUserId());
             if (actionInProgress != null && ActionType.USER_SEARCH.equals(actionInProgress.getActionType())) {
                 resourceManagerService.deleteActionInProgress(actionInProgress);
-                UserDTO userByMail = resourceManagerService.getUserByMail(update.getMessage().getText());
+                UserDTO userByMail = resourceManagerService.getUserByMail(update.getText());
                 if (userByMail == null) {
-                    return message(update.getMessage().getChatId(),"Nessun iscritto con questa mail\nClicca su /start per tornare al menu principale.");
+                    return message(update.getChatId(),"Nessun iscritto con questa mail\nClicca su /start per tornare al menu principale.");
                 } else {
                     Action action = new Action();
                     action.setActionType(ActionType.USER_MANAGEMENT);
                     action.setTelegramUserIdToManage(userByMail.getTelegramUserId());
                     action.setTelegramUserId(user.getTelegramUserId());
                     resourceManagerService.saveAction(action);
-                    return userManagementMenu(update.getMessage().getChatId(), userByMail);
+                    return userManagementMenu(update.getChatId(), userByMail);
                 }
 
             } else if (actionInProgress != null && ActionType.USER_MANAGEMENT.equals(actionInProgress.getActionType())) {
                 UserDTO userToManage = resourceManagerService.findUserByTelegramId(actionInProgress.getTelegramUserIdToManage());
                 if (userToManage != null) {
-                    return userManagementMenu(update.getMessage().getChatId(), userToManage);
+                    return userManagementMenu(update.getChatId(), userToManage);
                 }
             } else if (actionInProgress != null && ActionType.USER_CREDIT.equals(actionInProgress.getActionType())) {
                 UserDTO userToManage = resourceManagerService.findUserByTelegramId(actionInProgress.getTelegramUserIdToManage());
                 if (userToManage != null) {
-                    return userManagementCredit(update.getMessage().getChatId());
+                    return userManagementCredit(update.getChatId());
                 }
             } else if (actionInProgress != null && ActionType.SELECT_PRODUCT.equals(actionInProgress.getActionType())) {
-                return selectProductQuantity(update.getMessage().getChatId());
+                return selectProductQuantity(update.getChatId());
             }
         }
 
         message = new SendMessage()
-                .setChatId(update.getMessage().getChatId())
+                .setChatId(update.getChatId())
                 .setText(String.format("%s,\nScegli tra le seguenti opzioni:", user == null ? "Benvenuto nel sistema InMediArt GasSMan" : "Ciao " + user.getName()));
 
         List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
@@ -195,5 +197,36 @@ public class ItemFactoryImpl implements ItemFactory {
     @Override
     public SendMessage selectAddress(Long chat_id) {
         return message(chat_id, "Inviare un ulteriore messaggio indicando l'indirizzo di spedizione per finalizzare l'ordine");
+    }
+
+    @Override
+    public void orderDetailsMessageBuilder(SendMessage message, OrderDTO orderDTO) {
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline3 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline4 = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline5 = new ArrayList<>();
+
+        rowInline1.add(new InlineKeyboardButton().setText("Paga questo ordine : "+ NumberFormat.getCurrencyInstance().format(orderDTO.getAmount())).setCallbackData("makePayment#"+orderDTO.getOrderId()));
+        rowInline2.add(new InlineKeyboardButton().setText("Annulla questo ordine").setCallbackData("deleteOrder#"+orderDTO.getOrderId()));
+        rowInline3.add(new InlineKeyboardButton().setText("Guarda il contenuto").setUrl(orderDTO.getProduct().getUrl()));
+        rowInline4.add(new InlineKeyboardButton().setText("Torna alla lista degli ordini").setCallbackData("listaOrdini"));
+        rowInline5.add(new InlineKeyboardButton().setText("Torna al menù principale").setCallbackData("welcomeMenu"));
+        // Set the keyboard to the markup
+        if(!orderDTO.getPaid()){
+            rowsInline.add(rowInline1);
+            rowsInline.add(rowInline2);
+        } else {
+            rowsInline.add(rowInline3);
+        }
+
+        rowsInline.add(rowInline4);
+        rowsInline.add(rowInline5);
+
+        // Add it to the message
+        markupInline.setKeyboard(rowsInline);
+        message.setReplyMarkup(markupInline);
     }
 }
