@@ -127,7 +127,7 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                 Long orderId = Long.parseLong(split[1]);
                 String postOrderMessage = resourceManagerService.makePayment(orderId);
                 OrderDTO orderDTO = resourceManagerService.getOrder(call_data);
-                message = itemFactory.message(chat_id,  postOrderMessage + "\n" + orderDTO.toString());
+                message = itemFactory.message(chat_id,  postOrderMessage + "\n" + (orderDTO.getPaid() ? orderDTO.toString() : StringUtils.EMPTY));
                 itemFactory.orderDetailsMessageBuilder((SendMessage) message, orderDTO);
             } else if (call_data.startsWith("deleteOrder#")) {
                 OrderDTO orderDTO = resourceManagerService.getOrder(call_data);
