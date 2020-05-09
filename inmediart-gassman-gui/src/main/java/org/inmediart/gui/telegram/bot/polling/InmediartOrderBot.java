@@ -1,5 +1,6 @@
 package org.inmediart.gui.telegram.bot.polling;
 
+import org.apache.commons.lang3.StringUtils;
 import org.inmediart.model.entity.Action;
 import org.inmediart.model.entity.type.ActionType;
 import org.inmediart.gui.dto.OrderDTO;
@@ -186,17 +187,24 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     ((SendMessage)message).setReplyMarkup(markupInline);
             } else if (call_data.startsWith("selectProduct#")) {
                 ProductDTO productDTO = resourceManagerService.getProduct(call_data);
-                OrderDTO orderDTO = new OrderDTO();
-                orderDTO.setActionType(ActionType.BUY);
-                UserDTO userDTO = new UserDTO();
-                userDTO.setTelegramUserId(user_id);
-                orderDTO.setUser(userDTO);
-                orderDTO.setProduct(productDTO);
 
-                resourceManagerService.postOrder(orderDTO);
+                if(productDTO.getAvailableQuantity() == null) {
+                    OrderDTO orderDTO = new OrderDTO();
+                    orderDTO.setActionType(ActionType.BUY);
+                    UserDTO userDTO = new UserDTO();
+                    userDTO.setTelegramUserId(user_id);
+                    orderDTO.setUser(userDTO);
+                    orderDTO.setProduct(productDTO);
 
-                message = itemFactory.message(chat_id, "Ordine registrato correttamente, una mail di conferma con una sintesi dell'acquisto e le modalità di pagamento è stata inviata sul tuo indirizzo email.\nClicca su /start per tornare al menu principale.");
-
+                    message = itemFactory.message(chat_id, resourceManagerService.postOrder(orderDTO));
+                } else {
+                    Action action = new Action();
+                    action.setActionType(ActionType.SELECT_PRODUCT);
+                    action.setTelegramUserId(user_id);
+                    action.setSelectedProductId(productDTO.getProductId());
+                    resourceManagerService.saveAction(action);
+                    message = itemFactory.selectProductQuantity(chat_id);
+                }
             } else if (call_data.equalsIgnoreCase("usermng")) {
                 Action action = new Action();
                 action.setActionType(ActionType.USER_SEARCH);
@@ -247,6 +255,28 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
             } else if (update.getMessage().getText() != null && update.getMessage().getText().contains("@") && actionInProgress ==null) {
                 resourceManagerService.addUser(update.getMessage().getFrom(), update.getMessage().getText());
                 message = itemFactory.message(chat_id, "Nuovo utente iscritto correttamente : una mail di conferma è stata inviata all'indirizzo specificato.\nClicca su /start per iniziare.");
+            } else if (update.getMessage().getText() != null && StringUtils.isNumeric(update.getMessage().getText()) && actionInProgress !=null && ActionType.SELECT_PRODUCT.equals(actionInProgress.getActionType())) {
+                Action action = new Action();
+                action.setActionType(ActionType.SELECT_ADDRESS);
+                action.setTelegramUserId(user_id);
+                action.setSelectedProductId(actionInProgress.getSelectedProductId());
+                action.setQuantity(Double.parseDouble(update.getMessage().getText()));
+                resourceManagerService.saveAction(action);
+                resourceManagerService.deleteActionInProgress(actionInProgress);
+                message = itemFactory.selectAddress(chat_id);
+            } else if (update.getMessage().getText() != null && !StringUtils.isNumeric(update.getMessage().getText()) && actionInProgress !=null && ActionType.SELECT_ADDRESS.equals(actionInProgress.getActionType())) {
+                resourceManagerService.deleteActionInProgress(actionInProgress);
+                ProductDTO productDTO = resourceManagerService.getProductById(actionInProgress.getSelectedProductId());
+                OrderDTO orderDTO = new OrderDTO();
+                orderDTO.setActionType(ActionType.BUY_PHISICAL);
+                UserDTO userDTO = new UserDTO();
+                userDTO.setTelegramUserId(user_id);
+                orderDTO.setUser(userDTO);
+                orderDTO.setProduct(productDTO);
+                orderDTO.setQuantity(actionInProgress.getQuantity());
+                orderDTO.setAddress(update.getMessage().getText());
+
+                message = itemFactory.message(chat_id, resourceManagerService.postOrder(orderDTO));
             } else if (update.hasMessage()) {
                 message = itemFactory.welcomeMessage(update);
             }

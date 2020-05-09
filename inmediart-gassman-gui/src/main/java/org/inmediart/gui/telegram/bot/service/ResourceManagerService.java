@@ -17,7 +17,7 @@ public interface ResourceManagerService {
     Action getActionInProgress(Integer telegramUserId);
     void deleteActionInProgress(Action action);
     void saveAction(Action action);
-    void postOrder(OrderDTO orderDTO);
+    String postOrder(OrderDTO orderDTO);
     OrderDTO getOrder(String call_data);
     List<OrderDTO> getOrders(Integer user_id);
     UserCreditDTO getCredit(Integer user_id);
@@ -26,5 +26,6 @@ public interface ResourceManagerService {
     void deleteOrder(OrderDTO orderDTO);
     List<ProductDTO> getProducts();
     ProductDTO getProduct(String call_data);
+    ProductDTO getProductById(Long productId);
     UserDTO getUserByMail(String call_data);
 }

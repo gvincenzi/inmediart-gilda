@@ -26,6 +26,10 @@ public class Order {
     private LocalDateTime paymentExternalDateTime;
     @Column
     private BigDecimal amount;
+    @Column
+    private Integer quantity;
+    @Column
+    private String address;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="productId", nullable = false)
     private Product product;

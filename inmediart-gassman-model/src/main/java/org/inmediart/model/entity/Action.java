@@ -23,5 +23,9 @@ public class Action {
     @Column
     private Integer telegramUserId;
     @Column
+    private Long selectedProductId;
+    @Column
+    private Double quantity;
+    @Column
     private Boolean inProgress = Boolean.TRUE;
 }

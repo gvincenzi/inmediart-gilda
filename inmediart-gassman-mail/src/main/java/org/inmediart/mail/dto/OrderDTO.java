@@ -15,6 +15,7 @@ public class OrderDTO implements Comparable<OrderDTO>{
     private ProductDTO product;
     private Boolean paid = Boolean.FALSE;
     private BigDecimal amount;
+    private Integer quantity;
 
     @Override
     public int compareTo(OrderDTO orderDTO) {
@@ -26,6 +27,7 @@ public class OrderDTO implements Comparable<OrderDTO>{
         return "\nID : " + orderId +
                 "\nContenuto : " + product +
                 "\nTipo di ordine : " + actionType.getLabel() +
-                (paid ? "\n\n**Password : " + this.getProduct().getPassword() : "\n\n**Quest'ordine non è ancora stato pagato**");
+                (quantity!=null ? "\nQuantità : " + quantity : "" ) +
+                (paid ? (this.getProduct().getPassword()!=null ? "\n\n**Password : " + this.getProduct().getPassword() : "") : "\n\n**Quest'ordine non è ancora stato pagato**");
     }
 }

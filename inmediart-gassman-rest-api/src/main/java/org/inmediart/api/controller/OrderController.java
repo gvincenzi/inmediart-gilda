@@ -1,5 +1,6 @@
 package org.inmediart.api.controller;
 
+import org.inmediart.commons.exception.GassmanAvailableQuantityException;
 import org.inmediart.commons.messaging.MessageSender;
 import org.inmediart.model.entity.Order;
 import org.inmediart.model.entity.Product;
@@ -10,6 +11,7 @@ import org.inmediart.model.repository.ProductRepository;
 import org.inmediart.model.repository.UserRepository;
 import org.inmediart.model.service.InternalPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessageChannel;
@@ -36,6 +38,9 @@ public class OrderController extends MessageSender<Order> {
     private MessageChannel orderCancellationChannel;
     @Autowired
     private MessageChannel orderUpdateChannel;
+
+    @Value("${message.quantityNotAvailable}")
+    public String quantityNotAvailable;
 
     @GetMapping("/users/{id}")
     public ResponseEntity<List<Order>> findAllOrdersByUser(@PathVariable("id") Long id){
@@ -74,10 +79,15 @@ public class OrderController extends MessageSender<Order> {
     }
 
     private ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        order = internalPaymentService.processUserOrder(order);
-        Order orderPersisted = orderRepository.save(order);
-        sendMessage(userOrderChannel,orderPersisted);
-        return new ResponseEntity<>(orderPersisted, HttpStatus.CREATED);
+        try {
+            order = internalPaymentService.processUserOrder(order);
+            Order orderPersisted = orderRepository.save(order);
+            sendMessage(userOrderChannel,orderPersisted);
+            return new ResponseEntity<>(orderPersisted, HttpStatus.CREATED);
+        }catch (GassmanAvailableQuantityException ex){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,quantityNotAvailable,null);
+        }
+
     }
 
     @PostMapping("/telegram")
@@ -102,7 +112,11 @@ public class OrderController extends MessageSender<Order> {
             order.setOrderId(id);
             order.setUser(orderPersisted.get().getUser());
             order.setProduct(orderPersisted.get().getProduct());
-            order = internalPaymentService.processUserOrder(order);
+            try{
+                order = internalPaymentService.processUserOrder(order);
+            }catch (GassmanAvailableQuantityException ex){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,quantityNotAvailable,null);
+            }
 
             sendMessage(orderUpdateChannel,order);
 

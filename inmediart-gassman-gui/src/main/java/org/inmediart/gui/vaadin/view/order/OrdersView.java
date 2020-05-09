@@ -132,7 +132,7 @@ public class OrdersView extends VerticalLayout implements KeyNotifier {
         refreshOrdersGrid(orderResourceClient);
         grid.setHeight("300px");
 
-        grid.setColumns("product.name", "product.url", "product.password", "user", "actionType", "paid", "paymentExternalReference", "paymentExternalDateTime", "amount");
+        grid.setColumns("product.name", "product.url", "product.password", "user", "actionType", "paid", "quantity", "address", "paymentExternalReference", "paymentExternalDateTime", "amount");
         grid.getColumnByKey("product.name").setHeader(productLabelConfig.getName());
         grid.getColumnByKey("product.url").setHeader(productLabelConfig.getUrl());
         grid.getColumnByKey("product.password").setHeader(productLabelConfig.getPassword());
@@ -140,6 +140,8 @@ public class OrdersView extends VerticalLayout implements KeyNotifier {
         grid.getColumnByKey("user").setHeader(orderLabelConfig.getUser());
         grid.getColumnByKey("actionType").setHeader(orderLabelConfig.getActionType());
         grid.getColumnByKey("paid").setHeader(orderLabelConfig.getPaid());
+        grid.getColumnByKey("quantity").setHeader(orderLabelConfig.getQuantity());
+        grid.getColumnByKey("address").setHeader(orderLabelConfig.getAddress());
         grid.getColumnByKey("paymentExternalReference").setHeader(orderLabelConfig.getPaymentExternalReference());
         grid.getColumnByKey("paymentExternalDateTime").setHeader(orderLabelConfig.getPaymentExternalDateTime());
 

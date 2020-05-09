@@ -26,6 +26,8 @@ public class Product {
     @Column
     private BigDecimal price;
     @Column
+    private Integer availableQuantity;
+    @Column
     private Boolean active = Boolean.TRUE;
     @Column
     private Boolean advertising = Boolean.FALSE;
@@ -39,6 +41,8 @@ public class Product {
                 name.equals(product.name) &&
                 description.equals(product.description) &&
                 url.equals(product.url) &&
+                ((price==null && product.price==null) || price.equals(product.price)) &&
+                ((availableQuantity==null && product.availableQuantity==null) || availableQuantity.equals(product.availableQuantity)) &&
                 active.equals(product.active);
     }
 

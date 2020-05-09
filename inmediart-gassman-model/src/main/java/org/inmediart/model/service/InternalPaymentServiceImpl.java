@@ -1,11 +1,9 @@
 package org.inmediart.model.service;
 
+import org.inmediart.commons.exception.GassmanAvailableQuantityException;
 import org.inmediart.commons.messaging.MessageSender;
 import org.inmediart.model.entity.*;
-import org.inmediart.model.repository.OrderRepository;
-import org.inmediart.model.repository.PaymentRepository;
-import org.inmediart.model.repository.RechargeUserCreditLogRepository;
-import org.inmediart.model.repository.UserRepository;
+import org.inmediart.model.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
@@ -24,6 +22,8 @@ public class InternalPaymentServiceImpl extends MessageSender<RechargeUserCredit
     private OrderRepository orderRepository;
     @Autowired
     private PaymentRepository paymentRepository;
+    @Autowired
+    private ProductRepository productRepository;
     @Autowired
     private MessageChannel rechargeUserCreditChannel;
 
@@ -55,7 +55,16 @@ public class InternalPaymentServiceImpl extends MessageSender<RechargeUserCredit
     }
 
     @Override
-    public Order processUserOrder(Order order) {
+    public Order processUserOrder(Order order) throws GassmanAvailableQuantityException {
+        if(order.getProduct().getAvailableQuantity()!=null) {
+            Integer updateAvailableQuantity = order.getProduct().getAvailableQuantity() - order.getQuantity();
+            if (updateAvailableQuantity < 0) {
+                throw new GassmanAvailableQuantityException();
+            } else {
+                order.getProduct().setAvailableQuantity(updateAvailableQuantity);
+                productRepository.save(order.getProduct());
+            }
+        }
         order.setAmount(processOrderPrice(order));
         return orderRepository.save(order);
     }
@@ -76,12 +85,18 @@ public class InternalPaymentServiceImpl extends MessageSender<RechargeUserCredit
                 this.userCreditUpdateCredit(msg.getUser(), newCredit, RechargeUserCreditType.ORDER_CANCELLED);
                 paymentRepository.deleteById(payment.get().getPaymentId());
             }
+
+            if(order.get().getProduct().getAvailableQuantity()!=null) {
+                Integer updateAvailableQuantity = order.get().getProduct().getAvailableQuantity() + order.get().getQuantity();
+                order.get().getProduct().setAvailableQuantity(updateAvailableQuantity);
+                productRepository.save(order.get().getProduct());
+            }
             orderRepository.deleteById(msg.getOrderId());
         }
     }
 
     @Override
     public BigDecimal processOrderPrice(Order msg) {
-        return msg.getProduct().getPrice();
+        return msg.getQuantity()!=null ? msg.getProduct().getPrice().multiply(BigDecimal.valueOf(msg.getQuantity())) : msg.getProduct().getPrice();
     }
 }

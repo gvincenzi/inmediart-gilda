@@ -17,8 +17,10 @@ public class OrderDTO implements Comparable<OrderDTO>{
     private ProductDTO product;
     private Boolean paid = Boolean.FALSE;
     private BigDecimal amount;
+    private Double quantity;
     private String paymentExternalReference;
     private LocalDateTime paymentExternalDateTime;
+    private String address;
 
     @Override
     public int compareTo(OrderDTO orderDTO) {
@@ -30,6 +32,8 @@ public class OrderDTO implements Comparable<OrderDTO>{
         return "\nID : " + orderId +
                 "\nConteunto : " + product +
                 "\nTipo di ordine : " + actionType.getLabel() +
-                (paid ? "\n\n**Password : " + this.getProduct().getPassword() : "\n\n**Quest'ordine non è ancora stato pagato**");
+                (quantity!=null ? "\nQuantità : " + quantity : "" ) +
+                (address!=null ? "\nIndirizzo di spedizione : " + address : "" ) +
+                (paid ? (this.getProduct().getPassword()!=null ? "\n\n**Password : " + this.getProduct().getPassword() : "") : "\n\n**Quest'ordine non è ancora stato pagato**");
     }
 }

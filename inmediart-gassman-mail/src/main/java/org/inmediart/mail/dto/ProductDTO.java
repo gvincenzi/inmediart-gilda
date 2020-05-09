@@ -14,6 +14,7 @@ public class ProductDTO implements Comparable<ProductDTO> {
     private String description;
     private String url;
     private BigDecimal price;
+    private Integer availableQuantity;
     private String password;
     private Boolean active = Boolean.TRUE;
 
@@ -21,7 +22,8 @@ public class ProductDTO implements Comparable<ProductDTO> {
     public String toString() {
         return  " Nome :'" + name + '\'' +
                 "\nDescrizione :'" + description + '\''+
-                "\nURL :'" + url + '\''+
+                (url!=null ? ("\nURL :'" + url + '\'') : "") +
+                (availableQuantity!=null ? ("\nQuantita' disponibile :'" + availableQuantity + '\'') : "") +
                 "\nPrezzo :'" + NumberFormat.getCurrencyInstance().format(price) + '\'';
     }
 

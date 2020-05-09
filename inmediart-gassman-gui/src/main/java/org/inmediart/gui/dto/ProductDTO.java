@@ -14,6 +14,7 @@ public class ProductDTO implements Comparable<ProductDTO> {
     private String description;
     private String url;
     private Double price;
+    private Double availableQuantity;
     private String password;
     private Boolean active = Boolean.TRUE;
 

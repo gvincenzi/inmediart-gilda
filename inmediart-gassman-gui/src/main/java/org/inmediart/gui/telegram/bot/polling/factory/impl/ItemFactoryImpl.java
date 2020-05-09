@@ -47,11 +47,13 @@ public class ItemFactoryImpl implements ItemFactory {
                 if (userToManage != null) {
                     return userManagementMenu(update.getMessage().getChatId(), userToManage);
                 }
-            } else if (actionInProgress != null && ActionType.USER_MANAGEMENT.equals(actionInProgress.getActionType())) {
+            } else if (actionInProgress != null && ActionType.USER_CREDIT.equals(actionInProgress.getActionType())) {
                 UserDTO userToManage = resourceManagerService.findUserByTelegramId(actionInProgress.getTelegramUserIdToManage());
                 if (userToManage != null) {
                     return userManagementCredit(update.getMessage().getChatId());
                 }
+            } else if (actionInProgress != null && ActionType.SELECT_PRODUCT.equals(actionInProgress.getActionType())) {
+                return selectProductQuantity(update.getMessage().getChatId());
             }
         }
 
@@ -183,5 +185,15 @@ public class ItemFactoryImpl implements ItemFactory {
         markupInline.setKeyboard(rowsInline);
         message.setReplyMarkup(markupInline);
         return message;
+    }
+
+    @Override
+    public SendMessage selectProductQuantity(Long chat_id) {
+        return message(chat_id, "Inviare ora un messaggio indicando la quantità desiderata (solo il valore numerico) per finalizzare l'ordine");
+    }
+
+    @Override
+    public SendMessage selectAddress(Long chat_id) {
+        return message(chat_id, "Inviare un ulteriore messaggio indicando l'indirizzo di spedizione per finalizzare l'ordine");
     }
 }

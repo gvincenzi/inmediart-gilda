@@ -1,7 +1,13 @@
 package org.inmediart.model.entity.type;
 
 public enum ActionType {
-    BUY("Acquisto"),USER_SEARCH("Ricerca Utente"),USER_MANAGEMENT("Gestione Utente"),USER_CREDIT("Ricarica credito di un utente");
+    BUY("Acquisto contenuto multimediale"),
+    BUY_PHISICAL("Acquisto prodotto fisico"),
+    USER_SEARCH("Ricerca Utente"),
+    SELECT_PRODUCT("Selezione prodotto"),
+    SELECT_ADDRESS("Selezione indirizzo"),
+    USER_MANAGEMENT("Gestione Utente"),
+    USER_CREDIT("Ricarica credito di un utente");
 
     private String label;
 
