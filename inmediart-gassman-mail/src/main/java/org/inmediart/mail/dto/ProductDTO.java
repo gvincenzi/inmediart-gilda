@@ -22,9 +22,8 @@ public class ProductDTO implements Comparable<ProductDTO> {
 
     @Override
     public String toString() {
-        return  " Nome :'" + name + '\'' +
+        return  "Nome :'" + name + '\'' +
                 "\nDescrizione :'" + description + '\''+
-                (url!=null ? ("\nURL :'" + url + '\'') : StringUtils.EMPTY) +
                 "\nPrezzo :'" + NumberFormat.getCurrencyInstance().format(price) + '\'' +
                 (delivery!=null && delivery ? " (con consegna a domicilio)" : StringUtils.EMPTY);
     }
