@@ -16,6 +16,7 @@ public interface RestAPIMQBinding {
     String EXTERNAL_PRODUCT_INPUT = "externalProductInputChannel";
     String ADVERTISING = "advertisingChannel";
     String RECHARGE_USER_CREDIT = "rechargeUserCreditChannel";
+    String PRODUCT_UPDATE = "productUpdateChannel";
 
     @Output(USER_REGISTRATION)
     MessageChannel userRegistrationChannel();
@@ -46,4 +47,7 @@ public interface RestAPIMQBinding {
 
     @Input(EXTERNAL_PRODUCT_INPUT)
     SubscribableChannel externalProductInputChannel();
+
+    @Output(PRODUCT_UPDATE)
+    MessageChannel productUpdateChannel();
 }

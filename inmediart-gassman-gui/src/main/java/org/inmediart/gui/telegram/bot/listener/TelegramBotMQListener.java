@@ -50,6 +50,13 @@ public class TelegramBotMQListener {
         }
     }
 
+    @StreamListener(target = GUIMQBinding.PRODUCT_UPDATE)
+    public void processProductUpdate(GassmanMessage<OrderDTO> msg) throws TelegramApiException {
+        if(checkInstance(msg)){
+            telegramAdministratorService.sendOrderUpdateMessage(msg.getPayload());
+        }
+    }
+
     private boolean checkInstance(GassmanMessage msg) {
         return msg.getParams() != null && msg.getParams().length>=2
                 && instanceId.equalsIgnoreCase(msg.getParams()[0])

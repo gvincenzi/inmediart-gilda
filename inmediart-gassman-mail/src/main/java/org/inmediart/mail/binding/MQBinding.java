@@ -1,7 +1,6 @@
 package org.inmediart.mail.binding;
 
 import org.springframework.cloud.stream.annotation.Input;
-import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.SubscribableChannel;
 
@@ -14,6 +13,7 @@ public interface MQBinding {
     String ORDER_UPDATE = "orderUpdateChannel";
     String ORDER_CANCELLATION = "orderCancellationChannel";
     String ADVERTISING = "advertisingChannel";
+    String PRODUCT_UPDATE = "productUpdateChannel";
 
     @Input(USER_REGISTRATION)
     SubscribableChannel userRegistrationChannel();
@@ -38,4 +38,7 @@ public interface MQBinding {
 
     @Input(ADVERTISING)
     SubscribableChannel advertisingChannel();
+
+    @Input(PRODUCT_UPDATE)
+    SubscribableChannel productUpdateChannel();
 }

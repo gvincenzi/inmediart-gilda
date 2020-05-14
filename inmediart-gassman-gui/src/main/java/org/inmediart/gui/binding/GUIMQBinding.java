@@ -15,6 +15,7 @@ public interface GUIMQBinding {
     String RECHARGE_USER_CREDIT = "rechargeUserCreditChannel";
     String EXTERNAL_PRODUCT = "externalProductChannel";
     String ADVERTISING = "advertisingChannel";
+    String PRODUCT_UPDATE = "productUpdateChannel";
 
     @Input(USER_REGISTRATION)
     SubscribableChannel userRegistrationChannel();
@@ -42,4 +43,7 @@ public interface GUIMQBinding {
 
     @Output(EXTERNAL_PRODUCT)
     MessageChannel externalProductChannel();
+
+    @Input(PRODUCT_UPDATE)
+    SubscribableChannel productUpdateChannel();
 }

@@ -35,6 +35,9 @@ public class ProductController extends MessageSender<Order> {
     @Autowired
     private MessageChannel orderCancellationChannel;
 
+    @Autowired
+    private MessageChannel productUpdateChannel;
+
     @GetMapping
     public ResponseEntity<List<Product>> getProducts(){
         return new ResponseEntity<>(productRepository.findByActiveTrue(), HttpStatus.OK);
@@ -79,6 +82,7 @@ public class ProductController extends MessageSender<Order> {
             productToUpdate.setProductId(id);
             if(!product.get().equals(productToUpdate)){
                 productToUpdate = productRepository.save(productToUpdate);
+                sendUserOrdersMessage(orderRepository.findByProduct(productToUpdate));
             }
             return new ResponseEntity<>(productToUpdate, HttpStatus.ACCEPTED);
         } else {
@@ -126,6 +130,12 @@ public class ProductController extends MessageSender<Order> {
     private void sendUserOrdersCancellationMessage(List<Order> orders) {
         for(Order order : orders) {
             sendMessage(orderCancellationChannel,order);
+        }
+    }
+
+    private void sendUserOrdersMessage(List<Order> orders) {
+        for(Order order : orders) {
+            sendMessage(productUpdateChannel,order);
         }
     }
 }

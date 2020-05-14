@@ -1,5 +1,6 @@
 package org.inmediart.gui.telegram.bot.polling.factory.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.inmediart.gui.dto.OrderDTO;
 import org.inmediart.gui.dto.UserDTO;
 import org.inmediart.gui.telegram.bot.polling.factory.ItemFactory;
@@ -211,7 +212,9 @@ public class ItemFactoryImpl implements ItemFactory {
 
         rowInline1.add(new InlineKeyboardButton().setText("Paga questo ordine : "+ NumberFormat.getCurrencyInstance().format(orderDTO.getAmount())).setCallbackData("makePayment#"+orderDTO.getOrderId()));
         rowInline2.add(new InlineKeyboardButton().setText("Annulla questo ordine").setCallbackData("deleteOrder#"+orderDTO.getOrderId()));
-        rowInline3.add(new InlineKeyboardButton().setText("Guarda il contenuto").setUrl(orderDTO.getProduct().getUrl()));
+        if(StringUtils.isNotEmpty(orderDTO.getProduct().getUrl())){
+            rowInline3.add(new InlineKeyboardButton().setText("Guarda il contenuto").setUrl(orderDTO.getProduct().getUrl()));
+        }
         rowInline4.add(new InlineKeyboardButton().setText("Torna alla lista degli ordini").setCallbackData("listaOrdini"));
         rowInline5.add(new InlineKeyboardButton().setText("Torna al menù principale").setCallbackData("welcomeMenu"));
         // Set the keyboard to the markup
@@ -219,7 +222,9 @@ public class ItemFactoryImpl implements ItemFactory {
             rowsInline.add(rowInline1);
             rowsInline.add(rowInline2);
         } else {
-            rowsInline.add(rowInline3);
+            if(StringUtils.isNotEmpty(orderDTO.getProduct().getUrl())){
+                rowsInline.add(rowInline3);
+            }
         }
 
         rowsInline.add(rowInline4);

@@ -79,6 +79,13 @@ public class MQListener {
         }
     }
 
+    @StreamListener(target = MQBinding.PRODUCT_UPDATE)
+    public void processProductUpdateChannel(GassmanMessage<OrderDTO> msg) {
+        if(checkInstance(msg)){
+            mailService.sendProductUpdateMessage(msg.getPayload());
+        }
+    }
+
     private boolean checkInstance(GassmanMessage msg) {
         return msg.getParams() != null && msg.getParams().length>=2
                 && instanceId.equalsIgnoreCase(msg.getParams()[0])

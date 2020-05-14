@@ -44,6 +44,9 @@ public class MailServiceImpl implements MailService {
     @Autowired
     SimpleMailMessage templateAdvertisingMessage;
 
+    @Autowired
+    SimpleMailMessage templateProductUpdateMessage;
+
     @Value("${template.subject.registration}")
     public String templateSubjectRegistration;
 
@@ -67,6 +70,9 @@ public class MailServiceImpl implements MailService {
 
     @Value("${template.subject.advertising}")
     public String templateSubjectAdvertising;
+
+    @Value("${template.subject.productupdate}")
+    public String templateSubjectProductUpdate;
 
     @Value("${gassman.instance.botName}")
     private String botName;
@@ -139,5 +145,14 @@ public class MailServiceImpl implements MailService {
             message.setText(String.format(templateAdvertisingMessage.getText(), userDTO.getName(), advertisingDTO.ordersToString(), botName, advertisingDTO.productListToString(), advertisingDTO.externalProductsToString()));
             javaMailSender.send(message);
         }
+    }
+
+    @Override
+    public void sendProductUpdateMessage(OrderDTO orderDTO) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(orderDTO.getUser().getMail());
+        message.setSubject(templateSubjectProductUpdate);
+        message.setText(String.format(templateOrderCancellationMessage.getText(), orderDTO.getUser().getName(), orderDTO.toString()));
+        javaMailSender.send(message);
     }
 }

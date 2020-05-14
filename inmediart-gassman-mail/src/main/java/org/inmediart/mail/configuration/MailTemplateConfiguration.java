@@ -36,6 +36,9 @@ public class MailTemplateConfiguration {
     @Value("${template.advertisingMessage}")
     public String templateAdvertisingMessage;
 
+    @Value("${template.productUpdateMessage}")
+    public String templateProductUpdateMessage;
+
     @Value("${mail.username}")
     public String mailUsername;
 
@@ -101,6 +104,13 @@ public class MailTemplateConfiguration {
     public SimpleMailMessage templateAdvertisingMessage() {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setText(templateAdvertisingMessage);
+        return message;
+    }
+
+    @Bean
+    public SimpleMailMessage templateProductUpdateMessage() {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setText(templateProductUpdateMessage);
         return message;
     }
 
