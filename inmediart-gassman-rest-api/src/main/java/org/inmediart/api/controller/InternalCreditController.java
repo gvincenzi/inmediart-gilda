@@ -63,11 +63,11 @@ public class InternalCreditController extends MessageSender<Payment> {
     @PutMapping("/{credit}")
     public ResponseEntity<User> addCredit(@RequestBody User user, @PathVariable("credit") BigDecimal credit) {
         Optional<User> userCreditCurrent = userRepository.findById(user.getId());
-        if(userCreditCurrent.isPresent()){
+        if (userCreditCurrent.isPresent()) {
             credit = credit.add(userCreditCurrent.get().getCredit());
-            return new ResponseEntity<>(internalPaymentService.userCreditUpdateCredit(user,credit, RechargeUserCreditType.TELEGRAM), HttpStatus.OK);
+            return new ResponseEntity<>(internalPaymentService.userCreditUpdateCredit(user, credit, RechargeUserCreditType.TELEGRAM), HttpStatus.OK);
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(userNotFound,user.getId()), null);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(userNotFound, user.getId()), null);
         }
     }
 
@@ -88,7 +88,7 @@ public class InternalCreditController extends MessageSender<Payment> {
         if (user.isPresent()) {
             return new ResponseEntity<>(user.get(), HttpStatus.OK);
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(userNotFound,userId), null);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(userNotFound, userId), null);
         }
     }
 
@@ -98,14 +98,14 @@ public class InternalCreditController extends MessageSender<Payment> {
         if (user.isPresent()) {
             return new ResponseEntity<>(orderRepository.findByUser(user.get()), HttpStatus.OK);
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(userNotFound,userId), null);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(userNotFound, userId), null);
         }
     }
 
     @GetMapping("/totalUserCredit")
     public ResponseEntity<BigDecimal> totalUserCredit() {
         BigDecimal total = BigDecimal.ZERO;
-        for(User user : userRepository.findAll()){
+        for (User user : userRepository.findAll()) {
             total = total.add(user.getCredit());
         }
         return new ResponseEntity<>(total, HttpStatus.OK);
@@ -115,7 +115,7 @@ public class InternalCreditController extends MessageSender<Payment> {
     @DeleteMapping("/{userId}/order/{orderId}")
     public ResponseEntity<Boolean> findOrdersByUser(@PathVariable("userId") Long userId, @PathVariable("orderId") Long orderId) {
         Optional<Order> orderOptional = orderRepository.findById(orderId);
-        if(orderOptional.isPresent()){
+        if (orderOptional.isPresent()) {
             orderRepository.deleteById(orderId);
             return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
         } else {
@@ -133,38 +133,37 @@ public class InternalCreditController extends MessageSender<Payment> {
         }
 
         User user = order.getUser();
-        if (user.getCredit().compareTo(order.getAmount()) < 0) {
-            return new ResponseEntity<>(String.format(insufficientCredit, order.getAmount(), user.getCredit()), HttpStatus.OK);
+        Optional<Payment> paymentPeristed = paymentRepository.findByOrderId(order.getOrderId());
+        if (paymentPeristed.isPresent()) {
+            return new ResponseEntity<>(String.format(alreadyPaid, order.getOrderId()), HttpStatus.OK);
         } else {
-            Optional<Payment> paymentPeristed = paymentRepository.findByOrderId(order.getOrderId());
-            if(paymentPeristed.isPresent()){
-                return new ResponseEntity<>(String.format(alreadyPaid,order.getOrderId()), HttpStatus.OK);
-            } else {
-                Payment payment = new Payment();
-                payment.setPaymentId("INTERNAL_PAYID_" + System.currentTimeMillis());
-                payment.setPaymentDateTime(LocalDateTime.now());
-                payment.setOrderId(order.getOrderId());
-                payment.setPaymentType(PaymentType.INTERNAL_CREDIT);
-                payment.setAmount(order.getAmount());
-                paymentRepository.save(payment);
-                BigDecimal newCredit = user.getCredit().subtract(order.getAmount());
-                user.setCredit(newCredit);
-                userRepository.save(user);
-
-                Optional<Order> orderPersisted = orderRepository.findById(payment.getOrderId());
-                if (orderPersisted.isPresent()) {
-                    orderPersisted.get().setPaid(Boolean.TRUE);
-                    orderPersisted.get().setPaymentExternalReference(payment.getPaymentId());
-                    orderPersisted.get().setPaymentExternalDateTime(payment.getPaymentDateTime());
-                    orderPersisted.get().setAmount(payment.getAmount());
-                    orderRepository.save(orderPersisted.get());
-
-                    Message<GassmanMessage<Order>> msg = MessageBuilder.withPayload(new GassmanMessage<>(orderPersisted.get(),instanceId,botName)).build();
-                    orderPaymentConfirmationChannel.send(msg);
-                }
-
-                return new ResponseEntity<>(paymentApproved, HttpStatus.OK);
+            if (user.getCredit().compareTo(order.getAmount()) < 0) {
+                return new ResponseEntity<>(String.format(insufficientCredit, order.getAmount(), user.getCredit()), HttpStatus.OK);
             }
+            Payment payment = new Payment();
+            payment.setPaymentId("INTERNAL_PAYID_" + System.currentTimeMillis());
+            payment.setPaymentDateTime(LocalDateTime.now());
+            payment.setOrderId(order.getOrderId());
+            payment.setPaymentType(PaymentType.INTERNAL_CREDIT);
+            payment.setAmount(order.getAmount());
+            paymentRepository.save(payment);
+            BigDecimal newCredit = user.getCredit().subtract(order.getAmount());
+            user.setCredit(newCredit);
+            userRepository.save(user);
+
+            Optional<Order> orderPersisted = orderRepository.findById(payment.getOrderId());
+            if (orderPersisted.isPresent()) {
+                orderPersisted.get().setPaid(Boolean.TRUE);
+                orderPersisted.get().setPaymentExternalReference(payment.getPaymentId());
+                orderPersisted.get().setPaymentExternalDateTime(payment.getPaymentDateTime());
+                orderPersisted.get().setAmount(payment.getAmount());
+                orderRepository.save(orderPersisted.get());
+
+                Message<GassmanMessage<Order>> msg = MessageBuilder.withPayload(new GassmanMessage<>(orderPersisted.get(), instanceId, botName)).build();
+                orderPaymentConfirmationChannel.send(msg);
+            }
+
+            return new ResponseEntity<>(paymentApproved, HttpStatus.OK);
         }
     }
 }
