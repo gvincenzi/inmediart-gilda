@@ -1,6 +1,7 @@
 package org.inmediart.gui.telegram.bot.polling.factory;
 
 import org.inmediart.gui.dto.OrderDTO;
+import org.inmediart.gui.dto.ProductDTO;
 import org.inmediart.gui.dto.UserDTO;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -14,5 +15,8 @@ public interface ItemFactory {
     SendMessage userManagementCredit(Long chat_id);
     SendMessage selectProductQuantity(Long chat_id);
     SendMessage selectAddress(Long chat_id);
+    SendMessage productSearch(Long chat_id);
+    SendMessage productManagementMenu(Long chat_id, ProductDTO productDTO);
+    SendMessage productUrlManagement(Long chat_id);
     void orderDetailsMessageBuilder(SendMessage message, OrderDTO orderDTO);
 }

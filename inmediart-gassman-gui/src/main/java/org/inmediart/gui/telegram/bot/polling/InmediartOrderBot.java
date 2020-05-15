@@ -138,7 +138,8 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     message = itemFactory.message(chat_id, "Richiesta dell'annullamento inviata con successo. Riceverai una notifica su Telegram e una mail di conferma.");
                 }
             } else if (call_data.startsWith("catalogo")) {
-                List<ProductDTO> products = resourceManagerService.getProducts();
+                UserDTO userDTO = resourceManagerService.findUserByTelegramId(user_id);
+                List<ProductDTO> products = resourceManagerService.getProducts(userDTO.getAdministrator());
                 if (products.isEmpty()) {
                     message = itemFactory.message(chat_id,"Non ci sono elementi nel catalogo");
                 } else {
@@ -147,7 +148,8 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     Collections.sort(products);
                     for (ProductDTO productDTO : products) {
                         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-                        rowInline.add(new InlineKeyboardButton().setText(productDTO.getName() + (productDTO.getAvailableQuantity() != null ? String.format(" (disponibilità: %d)",productDTO.getAvailableQuantity().intValue()) : StringUtils.EMPTY)).setCallbackData("detailProduct#" + productDTO.getProductId()));
+                        UserDTO user = resourceManagerService.findUserByTelegramId(user_id);
+                        rowInline.add(new InlineKeyboardButton().setText((user.getAdministrator() ? productDTO.getProductId() + (productDTO.getActive() ? "+" : "-") + ":":StringUtils.EMPTY) + productDTO.getName() + (productDTO.getAvailableQuantity() != null ? String.format(" (disponibilità: %d)",productDTO.getAvailableQuantity().intValue()) : StringUtils.EMPTY)).setCallbackData("detailProduct#" + productDTO.getProductId()));
                         rowsInline.add(rowInline);
                     }
 
@@ -237,6 +239,38 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     resourceManagerService.deleteActionInProgress(actionInProgress);
                     resourceManagerService.addCredit(actionInProgress.getTelegramUserIdToManage(), BigDecimal.valueOf(credit));
                     message = itemFactory.message(chat_id, "Credito aggiornato correttamente\nClicca su /start per tornare al menu principale.");
+                }
+            } else if (call_data.equalsIgnoreCase("catalogmng")) {
+                Action action = new Action();
+                action.setActionType(ActionType.PRODUCT_SEARCH);
+                action.setTelegramUserId(user_id);
+                resourceManagerService.saveAction(action);
+                message = itemFactory.productSearch(chat_id);
+            } else if (call_data.equalsIgnoreCase("catalogmng#url")) {
+                Action actionInProgress = getActionInProgress(user_id);
+                if(actionInProgress != null && actionInProgress.getProductIdToManage() != null) {
+                    Action action = new Action();
+                    action.setActionType(ActionType.PRODUCT_URL);
+                    action.setProductIdToManage(actionInProgress.getProductIdToManage());
+                    action.setTelegramUserId(user_id);
+                    resourceManagerService.deleteActionInProgress(actionInProgress);
+                    resourceManagerService.saveAction(action);
+                    message = itemFactory.productUrlManagement(chat_id);
+                }
+            } else if (call_data.equalsIgnoreCase("catalogmng#active")) {
+                Action actionInProgress = getActionInProgress(user_id);
+                if(actionInProgress != null && actionInProgress.getProductIdToManage() != null) {
+                    ProductDTO productDTO = resourceManagerService.getProductById(actionInProgress.getProductIdToManage());
+                    productDTO.setActive(!productDTO.getActive());
+                    resourceManagerService.updateProduct(productDTO);
+                    resourceManagerService.deleteActionInProgress(actionInProgress);
+                    message = itemFactory.message(chat_id,"Modifica terminata.\nClicca su /start per tornare al menu principale.");
+                }
+            } else if (call_data.equalsIgnoreCase("catalogmng#end")) {
+                Action actionInProgress = getActionInProgress(user_id);
+                if(actionInProgress != null && actionInProgress.getProductIdToManage() != null) {
+                    resourceManagerService.deleteActionInProgress(actionInProgress);
+                    message = itemFactory.message(chat_id,"Modifica terminata.\nClicca su /start per tornare al menu principale.");
                 }
             } else if (call_data.startsWith("welcomeMenu")) {
                 message = itemFactory.welcomeMessage(update.getCallbackQuery().getMessage(), user_id);

@@ -1,10 +1,10 @@
 package org.inmediart.gui.telegram.bot.service;
 
-import org.inmediart.model.entity.Action;
 import org.inmediart.gui.dto.OrderDTO;
 import org.inmediart.gui.dto.ProductDTO;
 import org.inmediart.gui.dto.UserCreditDTO;
 import org.inmediart.gui.dto.UserDTO;
+import org.inmediart.model.entity.Action;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.math.BigDecimal;
@@ -24,8 +24,9 @@ public interface ResourceManagerService {
     UserCreditDTO addCredit(Integer user_id, BigDecimal credit);
     String makePayment(Long orderId);
     void deleteOrder(OrderDTO orderDTO);
-    List<ProductDTO> getProducts();
+    List<ProductDTO> getProducts(Boolean all);
     ProductDTO getProduct(String call_data);
     ProductDTO getProductById(Long productId);
     UserDTO getUserByMail(String call_data);
+    ProductDTO updateProduct(ProductDTO productDTO);
 }

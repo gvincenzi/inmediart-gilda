@@ -79,10 +79,13 @@ public class ProductController extends MessageSender<Order> {
     public ResponseEntity<Product> putProduct(@PathVariable("id") Long id, @RequestBody Product productToUpdate){
         Optional<Product> product = productRepository.findById(id);
         if(product.isPresent()){
+            Boolean isActive = product.get().getActive();
             productToUpdate.setProductId(id);
             if(!product.get().equals(productToUpdate)){
                 productToUpdate = productRepository.save(productToUpdate);
-                sendUserOrdersMessage(orderRepository.findByProduct(productToUpdate));
+                if(productToUpdate.getActive().equals(isActive) && productToUpdate.getActive()){
+                    sendUserOrdersMessage(orderRepository.findByProduct(productToUpdate));
+                }
             }
             return new ResponseEntity<>(productToUpdate, HttpStatus.ACCEPTED);
         } else {

@@ -130,8 +130,8 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
     }
 
     @Override
-    public List<ProductDTO> getProducts() {
-        return productResourceClient.findActives();
+    public List<ProductDTO> getProducts(Boolean all) {
+        return all ? productResourceClient.findAll() : productResourceClient.findActives();
     }
 
     @Override
@@ -143,11 +143,20 @@ public class ResourceManagerServiceImpl implements ResourceManagerService {
 
     @Override
     public ProductDTO getProductById(Long productId) {
-        return productResourceClient.findById(productId);
+        try {
+            return productResourceClient.findById(productId);
+        } catch (FeignException ex){
+            return null;
+        }
     }
 
     @Override
     public UserDTO getUserByMail(String call_data) {
         return userResourceClient.findUserByMail(call_data);
+    }
+
+    @Override
+    public ProductDTO updateProduct(ProductDTO productDTO) {
+        return productResourceClient.updateProduct(productDTO.getProductId(), productDTO);
     }
 }
