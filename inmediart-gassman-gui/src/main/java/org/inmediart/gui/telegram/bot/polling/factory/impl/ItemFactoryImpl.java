@@ -58,19 +58,6 @@ public class ItemFactoryImpl implements ItemFactory {
                 }
             } else if (actionInProgress != null && ActionType.SELECT_PRODUCT.equals(actionInProgress.getActionType())) {
                 return selectProductQuantity(update.getChatId());
-            } else if (actionInProgress != null && ActionType.PRODUCT_SEARCH.equals(actionInProgress.getActionType())) {
-                resourceManagerService.deleteActionInProgress(actionInProgress);
-                ProductDTO product = resourceManagerService.getProductById(Long.parseLong(update.getText()));
-                if (product == null) {
-                    return message(update.getChatId(),"Nessun prodotto con questo ID in catalogo\nClicca su /start per tornare al menu principale.");
-                } else {
-                    Action action = new Action();
-                    action.setActionType(ActionType.PRODUCT_MANAGEMENT);
-                    action.setProductIdToManage(product.getProductId());
-                    action.setTelegramUserId(user.getTelegramUserId());
-                    resourceManagerService.saveAction(action);
-                    return productManagementMenu(update.getChatId(), product);
-                }
             } else if (actionInProgress != null && ActionType.PRODUCT_URL.equals(actionInProgress.getActionType())) {
                 ProductDTO product = resourceManagerService.getProductById(actionInProgress.getProductIdToManage());
                 resourceManagerService.deleteActionInProgress(actionInProgress);
@@ -102,7 +89,6 @@ public class ItemFactoryImpl implements ItemFactory {
             rowInline3.add(new InlineKeyboardButton().setText("Ricarica credito").setCallbackData("ricaricaCredito"));
             rowInline4.add(new InlineKeyboardButton().setText("Cancellazione").setCallbackData("cancellazione"));
             rowInline5.add(new InlineKeyboardButton().setText("Gestione iscritti").setCallbackData("usermng"));
-            rowInline5.add(new InlineKeyboardButton().setText("Gestione catalogo").setCallbackData("catalogmng"));
         }
 
         // Set the keyboard to the markup
@@ -139,17 +125,6 @@ public class ItemFactoryImpl implements ItemFactory {
     }
 
     @Override
-    public SendMessage productSearch(Long chat_id) {
-        SendMessage message;
-
-        message = new SendMessage()
-                .setChatId(chat_id)
-                .setText(String.format("Scrivi l'ID del prodotto che vuoi gestire"));
-
-        return message;
-    }
-
-    @Override
     public SendMessage userManagementMenu(Long chat_id, UserDTO userToManage) {
         SendMessage message;
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
@@ -163,31 +138,6 @@ public class ItemFactoryImpl implements ItemFactory {
         rowInline1.add(new InlineKeyboardButton().setText("Ricarica credito").setCallbackData("usermng#ricaricaCredito"));
         rowInline1.add(new InlineKeyboardButton().setText("Cancellazione").setCallbackData("usermng#cancellazione"));
         rowInline2.add(new InlineKeyboardButton().setText("Modifica terminata").setCallbackData("usermng#end"));
-
-        // Set the keyboard to the markup
-        rowsInline.add(rowInline1);
-        rowsInline.add(rowInline2);
-
-        // Add it to the message
-        markupInline.setKeyboard(rowsInline);
-        message.setReplyMarkup(markupInline);
-        return message;
-    }
-
-    @Override
-    public SendMessage productManagementMenu(Long chat_id, ProductDTO productToManage) {
-        SendMessage message;
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-
-        message = new SendMessage()
-                .setChatId(chat_id)
-                .setText(String.format("Prodotto :\n%s", productToManage));
-        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
-        rowInline1.add(new InlineKeyboardButton().setText("Modifica URL").setCallbackData("catalogmng#url"));
-        rowInline1.add(new InlineKeyboardButton().setText(productToManage.getActive() ? "Disattiva dal catalogo" : "Attiva nel catalogo").setCallbackData("catalogmng#active"));
-        rowInline2.add(new InlineKeyboardButton().setText("Modifica terminata").setCallbackData("catalogmng#end"));
 
         // Set the keyboard to the markup
         rowsInline.add(rowInline1);

@@ -164,12 +164,18 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
                     List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
                     List<InlineKeyboardButton> rowInline = new ArrayList<>();
+                    List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
                     List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
                     rowInline.add(new InlineKeyboardButton().setText("Ordina questo prodotto").setCallbackData("selectProduct#" + productDTO.getProductId()));
-                    rowInline.add(new InlineKeyboardButton().setText("Torna alla lista dei prodotti").setCallbackData("listaProdotti"));
+                    rowInline.add(new InlineKeyboardButton().setText("Torna alla lista dei prodotti").setCallbackData("catalogo"));
+                    rowInline1.add(new InlineKeyboardButton().setText("Modifica URL").setCallbackData("catalogmng#url#" + productDTO.getProductId()));
+                    rowInline1.add(new InlineKeyboardButton().setText(productDTO.getActive() ? "Disattiva dal catalogo" : "Attiva nel catalogo").setCallbackData("catalogmng#active#" + productDTO.getProductId()));
                     rowInline2.add(new InlineKeyboardButton().setText("Torna al menù principale").setCallbackData("welcomeMenu"));
                     // Set the keyboard to the markup
                     rowsInline.add(rowInline);
+                    if(resourceManagerService.findUserByTelegramId(user_id).getAdministrator()){
+                        rowsInline.add(rowInline1);
+                    }
                     rowsInline.add(rowInline2);
                     // Add it to the message
                     markupInline.setKeyboard(rowsInline);
@@ -240,38 +246,22 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                     resourceManagerService.addCredit(actionInProgress.getTelegramUserIdToManage(), BigDecimal.valueOf(credit));
                     message = itemFactory.message(chat_id, "Credito aggiornato correttamente\nClicca su /start per tornare al menu principale.");
                 }
-            } else if (call_data.equalsIgnoreCase("catalogmng")) {
+            } else if (call_data.startsWith("catalogmng#url#")) {
+                String[] split = call_data.split("#");
+                Long productId = Long.parseLong(split[2]);
                 Action action = new Action();
-                action.setActionType(ActionType.PRODUCT_SEARCH);
+                action.setActionType(ActionType.PRODUCT_URL);
+                action.setProductIdToManage(productId);
                 action.setTelegramUserId(user_id);
                 resourceManagerService.saveAction(action);
-                message = itemFactory.productSearch(chat_id);
-            } else if (call_data.equalsIgnoreCase("catalogmng#url")) {
-                Action actionInProgress = getActionInProgress(user_id);
-                if(actionInProgress != null && actionInProgress.getProductIdToManage() != null) {
-                    Action action = new Action();
-                    action.setActionType(ActionType.PRODUCT_URL);
-                    action.setProductIdToManage(actionInProgress.getProductIdToManage());
-                    action.setTelegramUserId(user_id);
-                    resourceManagerService.deleteActionInProgress(actionInProgress);
-                    resourceManagerService.saveAction(action);
-                    message = itemFactory.productUrlManagement(chat_id);
-                }
-            } else if (call_data.equalsIgnoreCase("catalogmng#active")) {
-                Action actionInProgress = getActionInProgress(user_id);
-                if(actionInProgress != null && actionInProgress.getProductIdToManage() != null) {
-                    ProductDTO productDTO = resourceManagerService.getProductById(actionInProgress.getProductIdToManage());
-                    productDTO.setActive(!productDTO.getActive());
-                    resourceManagerService.updateProduct(productDTO);
-                    resourceManagerService.deleteActionInProgress(actionInProgress);
-                    message = itemFactory.message(chat_id,"Modifica terminata.\nClicca su /start per tornare al menu principale.");
-                }
-            } else if (call_data.equalsIgnoreCase("catalogmng#end")) {
-                Action actionInProgress = getActionInProgress(user_id);
-                if(actionInProgress != null && actionInProgress.getProductIdToManage() != null) {
-                    resourceManagerService.deleteActionInProgress(actionInProgress);
-                    message = itemFactory.message(chat_id,"Modifica terminata.\nClicca su /start per tornare al menu principale.");
-                }
+                message = itemFactory.productUrlManagement(chat_id);
+            } else if (call_data.startsWith("catalogmng#active#")) {
+                String[] split = call_data.split("#");
+                Long productId = Long.parseLong(split[2]);
+                ProductDTO productDTO = resourceManagerService.getProductById(productId);
+                productDTO.setActive(!productDTO.getActive());
+                resourceManagerService.updateProduct(productDTO);
+                message = itemFactory.message(chat_id,"Modifica terminata.\nClicca su /start per tornare al menu principale.");
             } else if (call_data.startsWith("welcomeMenu")) {
                 message = itemFactory.welcomeMessage(update.getCallbackQuery().getMessage(), user_id);
             }

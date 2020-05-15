@@ -8,8 +8,6 @@ public enum ActionType {
     SELECT_ADDRESS("Selezione indirizzo"),
     USER_MANAGEMENT("Gestione Utente"),
     USER_CREDIT("Ricarica credito di un utente"),
-    PRODUCT_SEARCH("Ricerca prodotto in catalogo"),
-    PRODUCT_MANAGEMENT("Gestione prodotto in catalogo"),
     PRODUCT_URL("Modifica URL del prodotto");
 
     private String label;
