@@ -80,7 +80,7 @@ public class ProductsView extends VerticalLayout implements KeyNotifier {
         add(actions, addNewBtn, showAll, grid, productEditor);
 
         refreshProductGrid(productResourceClient);
-        grid.setHeight("300px");
+        grid.setHeight("500px");
 
         grid.setColumns("name","description","url","password","price","availableQuantity","delivery","active");
         grid.getColumnByKey("name").setHeader(productLabelConfig.getName());

@@ -4,6 +4,7 @@ import com.vaadin.flow.component.UI;
 import org.inmediart.gui.binding.GUIMQBinding;
 import org.inmediart.commons.messaging.GassmanMessage;
 import org.inmediart.gui.dto.OrderDTO;
+import org.inmediart.gui.dto.RechargeUserCreditLogDTO;
 import org.inmediart.gui.dto.UserDTO;
 import org.inmediart.gui.vaadin.view.order.OrdersView;
 import org.inmediart.gui.vaadin.view.product.ProductsView;
@@ -82,7 +83,7 @@ public class VaadinMQListener {
     }
 
     @StreamListener(target = GUIMQBinding.RECHARGE_USER_CREDIT)
-    public void processRechargeUserCredit(GassmanMessage<UserDTO> msg) {
+    public void processRechargeUserCredit(GassmanMessage<RechargeUserCreditLogDTO> msg) {
         if(checkInstance(msg)) {
             if (usersView != null) {
                 ui.access(() -> usersView.refreshUserGrid());
