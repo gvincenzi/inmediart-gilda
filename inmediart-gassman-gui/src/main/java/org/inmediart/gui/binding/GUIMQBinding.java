@@ -1,8 +1,6 @@
 package org.inmediart.gui.binding;
 
 import org.springframework.cloud.stream.annotation.Input;
-import org.springframework.cloud.stream.annotation.Output;
-import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.SubscribableChannel;
 
 public interface GUIMQBinding {
@@ -13,8 +11,6 @@ public interface GUIMQBinding {
     String ORDER_UPDATE = "orderUpdateChannel";
     String ORDER_PAYMENT_CONFIRMATION = "orderPaymentConfirmationChannel";
     String RECHARGE_USER_CREDIT = "rechargeUserCreditChannel";
-    String EXTERNAL_PRODUCT = "externalProductChannel";
-    String ADVERTISING = "advertisingChannel";
     String PRODUCT_UPDATE = "productUpdateChannel";
 
     @Input(USER_REGISTRATION)
@@ -37,12 +33,6 @@ public interface GUIMQBinding {
 
     @Input(RECHARGE_USER_CREDIT)
     SubscribableChannel rechargeUserCreditChannel();
-
-    @Output(ADVERTISING)
-    MessageChannel advertisingChannel();
-
-    @Output(EXTERNAL_PRODUCT)
-    MessageChannel externalProductChannel();
 
     @Input(PRODUCT_UPDATE)
     SubscribableChannel productUpdateChannel();

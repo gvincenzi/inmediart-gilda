@@ -1,9 +1,7 @@
 package org.inmediart.api.binding;
 
-import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.SubscribableChannel;
 
 public interface RestAPIMQBinding {
     String USER_REGISTRATION = "userRegistrationChannel";
@@ -12,9 +10,6 @@ public interface RestAPIMQBinding {
     String ORDER_CANCELLATION = "orderCancellationChannel";
     String ORDER_UPDATE = "orderUpdateChannel";
     String ORDER_PAYMENT_CONFIRMATION = "orderPaymentConfirmationChannel";
-    String EXTERNAL_PRODUCT = "externalProductChannel";
-    String EXTERNAL_PRODUCT_INPUT = "externalProductInputChannel";
-    String ADVERTISING = "advertisingChannel";
     String RECHARGE_USER_CREDIT = "rechargeUserCreditChannel";
     String PRODUCT_UPDATE = "productUpdateChannel";
 
@@ -36,17 +31,8 @@ public interface RestAPIMQBinding {
     @Output(ORDER_PAYMENT_CONFIRMATION)
     MessageChannel userOrderPaymentConfirmationChannel();
 
-    @Output(ADVERTISING)
-    MessageChannel advertisingChannel();
-
-    @Output(EXTERNAL_PRODUCT)
-    MessageChannel externalProductChannel();
-
     @Output(RECHARGE_USER_CREDIT)
     MessageChannel rechargeUserCreditChannel();
-
-    @Input(EXTERNAL_PRODUCT_INPUT)
-    SubscribableChannel externalProductInputChannel();
 
     @Output(PRODUCT_UPDATE)
     MessageChannel productUpdateChannel();

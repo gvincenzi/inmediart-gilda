@@ -2,11 +2,10 @@ package org.inmediart.mail.listener;
 
 import org.inmediart.mail.binding.GassmanMessage;
 import org.inmediart.mail.binding.MQBinding;
-import org.inmediart.mail.dto.AdvertisingDTO;
-import org.inmediart.mail.service.MailService;
 import org.inmediart.mail.dto.OrderDTO;
 import org.inmediart.mail.dto.RechargeUserCreditLogDTO;
 import org.inmediart.mail.dto.UserDTO;
+import org.inmediart.mail.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.annotation.EnableBinding;
@@ -69,13 +68,6 @@ public class MQListener {
     public void processOrderCancellation(GassmanMessage<OrderDTO> msg) {
         if(checkInstance(msg)){
             mailService.sendOrderCancellationMessage(msg.getPayload());
-        }
-    }
-
-    @StreamListener(target = MQBinding.ADVERTISING)
-    public void processAdvertising(GassmanMessage<AdvertisingDTO> msg) {
-        if(checkInstance(msg)){
-            mailService.sendAdvertisingMessage(msg.getPayload());
         }
     }
 

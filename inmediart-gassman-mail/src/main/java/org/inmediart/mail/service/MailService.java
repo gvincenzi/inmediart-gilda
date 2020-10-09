@@ -1,6 +1,5 @@
 package org.inmediart.mail.service;
 
-import org.inmediart.mail.dto.AdvertisingDTO;
 import org.inmediart.mail.dto.OrderDTO;
 import org.inmediart.mail.dto.RechargeUserCreditLogDTO;
 import org.inmediart.mail.dto.UserDTO;
@@ -13,6 +12,5 @@ public interface MailService {
     void sendRechargeUserCreditMessage(RechargeUserCreditLogDTO rechargeUserCreditLogDTO);
     void sendOrderPaymentConfirmationMessage(OrderDTO msg);
     void sendOrderCancellationMessage(OrderDTO msg);
-    void sendAdvertisingMessage(AdvertisingDTO payload);
     void sendProductUpdateMessage(OrderDTO msg);
 }

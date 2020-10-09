@@ -1,6 +1,5 @@
 package org.inmediart.mail.service;
 
-import org.inmediart.mail.dto.AdvertisingDTO;
 import org.inmediart.mail.dto.OrderDTO;
 import org.inmediart.mail.dto.RechargeUserCreditLogDTO;
 import org.inmediart.mail.dto.UserDTO;
@@ -42,9 +41,6 @@ public class MailServiceImpl implements MailService {
     SimpleMailMessage templateOrderCancellationMessage;
 
     @Autowired
-    SimpleMailMessage templateAdvertisingMessage;
-
-    @Autowired
     SimpleMailMessage templateProductUpdateMessage;
 
     @Value("${template.subject.registration}")
@@ -67,9 +63,6 @@ public class MailServiceImpl implements MailService {
 
     @Value("${template.subject.ordercancellation}")
     public String templateSubjectOrderCancellation;
-
-    @Value("${template.subject.advertising}")
-    public String templateSubjectAdvertising;
 
     @Value("${template.subject.productupdate}")
     public String templateSubjectProductUpdate;
@@ -134,17 +127,6 @@ public class MailServiceImpl implements MailService {
         message.setSubject(templateSubjectOrderCancellation);
         message.setText(String.format(templateOrderCancellationMessage.getText(), orderDTO.getUser().getName(), orderDTO.toString()));
         javaMailSender.send(message);
-    }
-
-    @Override
-    public void sendAdvertisingMessage(AdvertisingDTO advertisingDTO) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        for (UserDTO userDTO: advertisingDTO.getUsers()) {
-            message.setTo(userDTO.getMail());
-            message.setSubject(templateSubjectAdvertising);
-            message.setText(String.format(templateAdvertisingMessage.getText(), userDTO.getName(), advertisingDTO.ordersToString(), botName, advertisingDTO.productListToString(), advertisingDTO.externalProductsToString()));
-            javaMailSender.send(message);
-        }
     }
 
     @Override

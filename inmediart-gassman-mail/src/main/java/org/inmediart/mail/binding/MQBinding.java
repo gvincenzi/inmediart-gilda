@@ -12,7 +12,6 @@ public interface MQBinding {
     String ORDER_PAYMENT_CONFIRMATION = "orderPaymentConfirmationChannel";
     String ORDER_UPDATE = "orderUpdateChannel";
     String ORDER_CANCELLATION = "orderCancellationChannel";
-    String ADVERTISING = "advertisingChannel";
     String PRODUCT_UPDATE = "productUpdateChannel";
 
     @Input(USER_REGISTRATION)
@@ -35,9 +34,6 @@ public interface MQBinding {
 
     @Input(ORDER_CANCELLATION)
     SubscribableChannel orderCancellationChannel();
-
-    @Input(ADVERTISING)
-    SubscribableChannel advertisingChannel();
 
     @Input(PRODUCT_UPDATE)
     SubscribableChannel productUpdateChannel();

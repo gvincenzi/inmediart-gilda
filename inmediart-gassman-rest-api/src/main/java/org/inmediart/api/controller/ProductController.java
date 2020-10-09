@@ -1,13 +1,10 @@
 package org.inmediart.api.controller;
 
 import org.inmediart.commons.messaging.MessageSender;
-import org.inmediart.model.entity.ExternalProduct;
 import org.inmediart.model.entity.Order;
 import org.inmediart.model.entity.Product;
-import org.inmediart.model.repository.ExternalProductRepository;
 import org.inmediart.model.repository.OrderRepository;
 import org.inmediart.model.repository.ProductRepository;
-import org.inmediart.model.service.ExternalProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +21,9 @@ import java.util.Optional;
 public class ProductController extends MessageSender<Order> {
     @Autowired
     private ProductRepository productRepository;
-    @Autowired
-    private OrderRepository orderRepository;
-    @Autowired
-    private ExternalProductRepository externalProductRepository;
 
     @Autowired
-    private ExternalProductService externalProductService;
+    private OrderRepository orderRepository;
 
     @Autowired
     private MessageChannel orderCancellationChannel;
@@ -71,7 +64,6 @@ public class ProductController extends MessageSender<Order> {
     @PostMapping
     public ResponseEntity<Product> postProduct(@RequestBody Product product){
         Product productPersisted = productRepository.save(product);
-        externalProductService.sendProductToOtherGassman(productPersisted);
         return new ResponseEntity<>(productPersisted, HttpStatus.CREATED);
     }
 
@@ -108,26 +100,6 @@ public class ProductController extends MessageSender<Order> {
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("ID %d does not exists",id), null);
         }
-    }
-
-    @GetMapping("/external")
-    public ResponseEntity<List<ExternalProduct>> findExternalProduct(){
-        return new ResponseEntity<>(externalProductRepository.findAll(), HttpStatus.OK);
-    }
-
-    @Transactional
-    @DeleteMapping("/external/{id}")
-    public ResponseEntity<String> deleteExternalProductById(@PathVariable("id") Long id){
-        externalProductRepository.deleteById(id);
-        return new ResponseEntity<>("External product deleted", HttpStatus.OK);
-    }
-
-    @Transactional
-    @DeleteMapping("/external/all")
-    public ResponseEntity<String> deleteExternalProduct(){
-        long count = externalProductRepository.count();
-        externalProductRepository.deleteAll();
-        return new ResponseEntity<>(String.format("Deleted %d external products",count), HttpStatus.OK);
     }
 
     private void sendUserOrdersCancellationMessage(List<Order> orders) {
