@@ -39,6 +39,12 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
     @Value("${inmediart.telegram.bot.stripe.token}")
     private String stripeToken;
 
+    @Value("${inmediart.telegram.bot.entryFreeCredit.active}")
+    private Boolean entryFreeCredit;
+
+    @Value("${inmediart.telegram.bot.entryFreeCredit.amount}")
+    private Double entryFreeCreditAmount;
+
     @Autowired
     ResourceManagerService resourceManagerService;
 
@@ -274,7 +280,13 @@ public class InmediartOrderBot extends TelegramLongPollingBot {
                 message = itemFactory.welcomeMessage(update.getMessage(), user_id);
             } else if (update.getMessage().getText() != null && update.getMessage().getText().contains("@") && actionInProgress ==null) {
                 resourceManagerService.addUser(update.getMessage().getFrom(), update.getMessage().getText());
-                message = itemFactory.message(chat_id, "Nuovo utente iscritto correttamente : una mail di conferma è stata inviata all'indirizzo specificato.\nClicca su /start per iniziare.");
+
+                if(entryFreeCredit){
+                    resourceManagerService.addCredit(user_id,BigDecimal.valueOf(entryFreeCreditAmount*100));
+                    message = itemFactory.message(chat_id, String.format("Nuovo utente iscritto correttamente : una mail di conferma è stata inviata all'indirizzo specificato.\nRiceverai anche un credito di %s € in regalo da utilizzare da subito per gli acquisti di prodotti dal catalogo.\nClicca su /start per iniziare.", entryFreeCreditAmount));
+                } else{
+                    message = itemFactory.message(chat_id, "Nuovo utente iscritto correttamente : una mail di conferma è stata inviata all'indirizzo specificato.\nClicca su /start per iniziare.");
+                }
             } else if (update.getMessage().getText() != null && StringUtils.isNumeric(update.getMessage().getText()) && actionInProgress !=null && ActionType.SELECT_PRODUCT.equals(actionInProgress.getActionType())) {
                 ProductDTO productDTO = resourceManagerService.getProductById(actionInProgress.getSelectedProductId());
                 if(productDTO.getDelivery()) {

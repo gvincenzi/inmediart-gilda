@@ -95,7 +95,7 @@ public class ItemFactoryImpl implements ItemFactory {
         rowsInline.add(rowInline1);
         rowsInline.add(rowInline2);
         rowsInline.add(rowInline3);
-        rowsInline.add(rowInline4);
+        // FIXME Can an user delete its own account ? -- rowsInline.add(rowInline4);
         if (user != null && user.getAdministrator()) {
             rowsInline.add(rowInline5);
         }
